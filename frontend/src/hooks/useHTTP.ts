@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { toast } from "sonner";
 
 interface HTTPProps {
@@ -18,12 +18,23 @@ const useHTTP = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios({
+      const config: AxiosRequestConfig = {
         method,
         headers: { "Content-Type": "application/json" },
         url: `http://localhost:8000/api/v1${url}`,
-        data: body,
-      });
+      };
+
+      if (method.toUpperCase() === "GET" && body) {
+        const params = new URLSearchParams();
+        Object.entries(body).forEach(([key, value]) => {
+          params.append(key, String(value));
+        });
+        config.url += `?${params.toString()}`;
+      } else if (body) {
+        config.data = body;
+      }
+
+      const { data } = await axios(config);
 
       if (data.error) throw new Error(data.error);
       if (handleData) handleData(data);

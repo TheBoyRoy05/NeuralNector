@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import useHTTP from "./hooks/useHTTP";
+import Image from "./components/Image";
+import useGetImages from "./hooks/useGetImages";
 
 function App() {
-  const { http } = useHTTP();
-
-  useEffect(() => {
-    http({ url: "/images", method: "GET", handleData: (data) => {
-      console.log(data);
-    } });
-  }, [http]);
-
-  return <div>Hello World</div>
+  const { images } = useGetImages(8, 8);
+  
+  return (
+    <div>
+      {images.map((image) => (
+        <Image {...image} />
+      ))}
+    </div>
+  );
 }
 
-export default App
+export default App;
