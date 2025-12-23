@@ -47,7 +47,7 @@ class ImageInfo(BaseModel):
     score: float
 
 
-@app.get("/health")
+@app.get("/api/v1/health")
 async def health():
     return {"status": "healthy"}
 
@@ -72,7 +72,7 @@ def score_image(model: GAN, image_path: Path) -> float:
         return score.squeeze().cpu().item()
 
 
-@app.get("/api/images", response_model=List[ImageInfo])
+@app.get("/api/v1/images", response_model=List[ImageInfo])
 async def get_images(
     count: int = Query(default=8, ge=1, le=100, description="Number of images to return"),
     real: bool = Query(default=True, description="Whether to return real images"),
