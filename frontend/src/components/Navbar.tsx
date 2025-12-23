@@ -10,7 +10,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="flex flex-col md:flex-row items-center justify-between gap-8 w-full p-8 sticky top-0 z-10 bg-base-100 border-b-2 border-gray-300">
+    <nav className="flex flex-col md:flex-row items-center justify-between gap-8 w-full p-8 sticky top-0 z-10 bg-base-100 border-b-2 border-primary">
       <div className="flex items-center justify-between w-full">
         <h1 className="font-regitha text-4xl">🌼 Neural Nector 🌼</h1>
         <label className="swap swap-rotate md:hidden">
