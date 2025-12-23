@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ImageProps } from "../components/Image";
+import type { ImageProps } from "../components/Images";
 import useHTTP from "./useHTTP";
 
 interface UseGetImagesProps {

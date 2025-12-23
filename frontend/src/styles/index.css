@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "daisyui";
+@plugin "fluid-tailwindcss";
 
 @font-face {
   font-family: "Regitha Script";
@@ -10,4 +12,16 @@
 
 @theme {
   --font-regitha: "Regitha Script", serif;
+}
+
+@font-face {
+  font-family: "Beezle";
+  src: url("../assets/fonts/Beezle.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-beezle: "Beezle";
 }

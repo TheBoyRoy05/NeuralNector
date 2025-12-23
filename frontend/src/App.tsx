@@ -1,18 +1,20 @@
-import Image from "./components/Image";
+import Footer from "./components/Footer";
+import Images from "./components/Images";
+import Landing from "./components/Landing";
 import Navbar from "./components/Navbar";
-import useGetImages from "./hooks/useGetImages";
+import { useThemeHandler } from "./hooks/useThemeHandler";
 
 function App() {
-  const { images } = useGetImages({ numReal: 8, numFake: 8 });
-  
+  useThemeHandler();
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="flex flex-wrap gap-4 items-center justify-center h-screen">
-        {images.map((image, index) => (
-          <Image key={index} {...image} />
-        ))}
-      </div>
+      <main className="flex flex-col items-center gap-8 flex-1 overflow-auto">
+        <Landing />
+        <Images />
+      </main>
+      <Footer />
     </div>
   );
 }
