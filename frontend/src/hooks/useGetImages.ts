@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import type { ImageProps } from "../components/Image";
 import useHTTP from "./useHTTP";
 
-export default function useGetImages (realCount: number, fakeCount: number) {
+interface UseGetImagesProps {
+  numReal: number;
+  numFake: number;
+}
+
+export default function useGetImages ({ numReal, numFake }: UseGetImagesProps) {
   const { http } = useHTTP();
   const [images, setImages] = useState<ImageProps[]>([]);
 
@@ -10,7 +15,7 @@ export default function useGetImages (realCount: number, fakeCount: number) {
     const fetchImages = async () => {
       const allImages: ImageProps[] = [];
 
-      for (const body of [{ count: realCount, real: true }, { count: fakeCount, real: false }]) {
+      for (const body of [{ count: numReal, real: true }, { count: numFake, real: false }]) {
         await http({
           url: "/images",
           method: "GET",
@@ -26,7 +31,7 @@ export default function useGetImages (realCount: number, fakeCount: number) {
     };
 
     fetchImages();
-  }, [http, realCount, fakeCount]);
+  }, [http, numReal, numFake]);
 
   return { images };
 };
