@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Regitha Script";
+  src: url("../assets/fonts/Regitha Script.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-regitha: "Regitha Script", serif;
+}
