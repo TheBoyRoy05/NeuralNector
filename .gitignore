@@ -25,3 +25,4 @@ dist-ssr
 
 # Python
 .venv
+__pycache__
