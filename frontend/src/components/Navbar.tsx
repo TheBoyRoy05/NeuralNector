@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <nav className="flex flex-col md:flex-row items-center justify-between gap-8 w-full p-8 sticky top-0 z-10 bg-base-100 border-b-2 border-gray-300">
       <div className="flex items-center justify-between w-full">
-        <h1 className="font-regitha text-4xl">Neural Nector</h1>
+        <h1 className="font-regitha text-4xl">🌼 Neural Nector 🌼</h1>
         <label className="swap swap-rotate md:hidden">
           <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
           <IoClose aria-label="enabled" className="swap-on text-2xl" />
@@ -44,7 +44,7 @@ const Navbar = () => {
           My Website
         </a>
         
-        <label className="swap swap-rotate hidden md:inline-grid" id="theme-toggle" title="Toggle Theme">
+        <label className="swap swap-rotate hidden md:inline-grid tooltip tooltip-bottom" id="theme-toggle" title="Toggle Theme" data-tip="Toggle Theme">
           <input type="checkbox" checked={isDark} onChange={toggleTheme} />
           <MdLightMode className="swap-off" aria-label="disabled" />
           <MdDarkMode className="swap-on" aria-label="enabled" />
@@ -55,8 +55,8 @@ const Navbar = () => {
           href="https://github.com/TheBoyRoy05/NeuralNector"
           target="_blank"
           rel="noopener noreferrer"
-          title="GitHub"
-          className="link-hover"
+          className="link-hover tooltip tooltip-bottom"
+          data-tip="GitHub"
         >
           <FaGithub className="hidden md:block" />
           <span className="block md:hidden">GitHub</span>

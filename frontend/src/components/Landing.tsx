@@ -1,5 +1,7 @@
 import realFlower from "../assets/images/real.jpeg";
 import fakeFlower from "../assets/images/fake.jpeg";
+import ScrollArrow from "./ScrollArrow";
+import { scrollTo } from "../Utils/functions";
 
 const Landing = () => {
   return (
@@ -12,8 +14,10 @@ const Landing = () => {
             These flowers never grew in a garden... or did they?
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-4">
-            <button className="btn btn-primary btn-lg md:btn-xl">Play</button>
-            <a className="btn btn-accent btn-lg md:w-[140px] md:order-first">Learn More</a>
+            <button className="btn btn-primary btn-lg md:btn-xl" onClick={() => scrollTo("game")}>
+              Play
+            </button>
+            <a className="btn btn-outline btn-lg md:w-[140px] md:order-first">Learn More</a>
             <a
               className="btn btn-outline btn-lg md:w-[140px]"
               href="https://github.com/TheBoyRoy05/NeuralNector"
@@ -29,18 +33,19 @@ const Landing = () => {
           <img
             src={realFlower}
             alt="Real Flower"
-            className="fl-w-48/64 object-cover rounded-lg border-2 border-gray-300 md:-rotate-4"
+            className="fl-w-48/64 object-cover rounded-lg border-2 md:-rotate-4"
             title="Real Flower"
           />
           vs.
           <img
             src={fakeFlower}
             alt="Fake Flower"
-            className="fl-w-48/64 object-cover rounded-lg border-2 border-gray-300 md:rotate-4"
+            className="fl-w-48/64 object-cover rounded-lg border-2 md:rotate-4"
             title="Fake Flower"
           />
         </div>
       </div>
+      <ScrollArrow id="about" offset={250} />
     </div>
   );
 };

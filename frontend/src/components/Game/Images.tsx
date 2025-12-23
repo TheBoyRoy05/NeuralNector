@@ -1,4 +1,4 @@
-import useGetImages from "../hooks/useGetImages";
+import useGetImages from "../../hooks/useGetImages";
 
 const Images = () => {
   const { images } = useGetImages({ numReal: 8, numFake: 8 });
