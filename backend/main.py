@@ -1,6 +1,8 @@
 import base64
+import io
 import random
 import sys
+import zipfile
 from pathlib import Path
 from typing import List
 
@@ -28,8 +30,8 @@ app.add_middleware(
 
 # Paths
 DATA_DIR = Path("data")
-REAL_DIR = DATA_DIR / "real"
-GENERATED_DIR = DATA_DIR / "generated"
+REAL_ZIP = DATA_DIR / "real.zip"
+FAKE_ZIP = DATA_DIR / "fake.zip"
 MODELS_DIR = Path("models")
 
 # Model parameters (should match training config)
@@ -52,19 +54,18 @@ async def health():
     return {"status": "healthy"}
 
 
-def score_image(model: GAN, image_path: Path) -> float:
-    """Score an image using the discriminator."""
-    # Load and transform image
+def score_image_from_bytes(model: GAN, img_bytes: bytes) -> float:
+    """Score an image from bytes using the discriminator."""
     transform = transforms.Compose(
         [
             transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),  # Normalize to [-1, 1]
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
         ]
     )
 
-    img = Image.open(image_path).convert("RGB")
-    tensor = transform(img).unsqueeze(0).to(DEVICE)  # Add batch dimension
+    img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+    tensor = transform(img).unsqueeze(0).to(DEVICE)
 
     model.discriminator.eval()
     with torch.no_grad():
@@ -78,7 +79,7 @@ async def get_images(
     real: bool = Query(default=True, description="Whether to return real images"),
 ):
     """
-    Get a specified number of real and fake flower images.
+    Get a specified number of real and fake flower images from zip files.
 
     Args:
         count: Number of images to return (default: 8)
@@ -87,30 +88,57 @@ async def get_images(
     Returns:
         List of images with base64-encoded data and discriminator scores
     """
-    image_files = list((REAL_DIR if real else GENERATED_DIR).glob("*.jpg"))
-    if len(image_files) < count:
+    zip_path = REAL_ZIP if real else FAKE_ZIP
+    
+    if not zip_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Zip file not found: {zip_path}",
+        )
+
+    # Get list of images from zip
+    try:
+        with zipfile.ZipFile(zip_path, "r") as z:
+            image_names = [
+                name for name in z.namelist()
+                if Path(name).suffix.lower() in {".jpg", ".jpeg", ".png"}
+            ]
+    except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Not enough images available. Found {len(image_files)}, requested {count}",
+            detail=f"Error reading zip file: {str(e)}",
         )
 
-    selected_files = random.sample(image_files, count)
+    if len(image_names) < count:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Not enough images available. Found {len(image_names)}, requested {count}",
+        )
+
+    selected_names = random.sample(image_names, count)
 
     images = []
-    for img_path in selected_files:
-        # Read and encode image
-        with open(img_path, "rb") as img_file:
-            img_bytes = img_file.read()
-            img_base64 = base64.b64encode(img_bytes).decode("utf-8")
-            image_data = f"data:image/jpeg;base64,{img_base64}"
-
-        images.append(
-            ImageInfo(
-                image_id=f"{'real' if real else 'fake'}_{img_path.stem}",
-                image_data=image_data,
-                is_real=real,
-                score=round(score_image(gan_model, img_path), 4),
-            )
-        )
+    with zipfile.ZipFile(zip_path, "r") as z:
+        for img_name in selected_names:
+            try:
+                img_bytes = z.read(img_name)
+                img_base64 = base64.b64encode(img_bytes).decode("utf-8")
+                image_data = f"data:image/jpeg;base64,{img_base64}"
+                
+                score = round(score_image_from_bytes(gan_model, img_bytes), 4)
+                
+                images.append(
+                    ImageInfo(
+                        image_id=f"{'real' if real else 'fake'}_{Path(img_name).stem}",
+                        image_data=image_data,
+                        is_real=real,
+                        score=score,
+                    )
+                )
+            except Exception as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Error processing image {img_name}: {str(e)}",
+                )
 
     return images
