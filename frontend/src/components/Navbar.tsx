@@ -12,7 +12,8 @@ const Navbar = () => {
   return (
     <nav className="flex flex-col md:flex-row items-center justify-between gap-8 w-full p-8 sticky top-0 z-10 bg-base-100 border-b-2 border-primary">
       <div className="flex items-center justify-between w-full">
-        <h1 className="font-regitha text-4xl">🌼 Neural Nector 🌼</h1>
+        <h1 className="font-regitha fl-text-2xl/4xl">🌼 Neural Nector 🌼</h1>
+        {/* <h1 className="font-regitha text-3xl ">🌼 Neural Nector 🌼</h1> */}
         <label className="swap swap-rotate md:hidden">
           <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
           <IoClose aria-label="enabled" className="swap-on text-2xl" />
@@ -21,7 +22,7 @@ const Navbar = () => {
       </div>
 
       <div
-        className={`w-full font-beezle items-center justify-end flex-col md:flex md:flex-row gap-6 text-2xl ${
+        className={`w-full font-beezle items-center justify-end flex-col md:flex md:flex-row fl-gap-3/6 text-2xl ${
           menuOpen ? "flex" : "hidden"
         }`}
       >

@@ -3,11 +3,11 @@ import yinyang from "../assets/images/yin-yang-flowers.png";
 const About = () => {
   return (
     <section
-      className="flex flex-col md:flex-row items-center justify-center gap-[10vw] w-full min-h-[60vh]"
+      className="flex flex-col md:flex-row items-center justify-center gap-[10vw] w-full min-h-[60vh] mb-[10vh]"
       id="about"
     >
-      <div className="flex-1 flex items-center justify-center">
-        <img src={yinyang} alt="Yin Yang" className="max-w-[500px] object-cover" />
+      <div className="flex-1 flex items-center justify-center min-w-0 px-[10vw] md:px-0">
+        <img src={yinyang} alt="Yin Yang" className="max-w-[500px] w-full object-cover" />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center gap-4">
         <h2 className="font-regitha fl-text-2xl/4xl">How does it work?</h2>
