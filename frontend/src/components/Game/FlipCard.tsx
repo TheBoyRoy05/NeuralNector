@@ -36,12 +36,12 @@ const FlipCard = ({ image, index, isFlipped, size, boardSize, isSelected, review
   useEffect(() => {
     if (prevFlippedRef.current && !isFlipped) {
       // Flipping from true to false - need to flip back (all cards flip back simultaneously)
-      setIsFlippingBack(true);
+      setTimeout(() => setIsFlippingBack(true), 0);
       const timer = setTimeout(() => setIsFlippingBack(false), duration * 1000);
       return () => clearTimeout(timer);
     } else if (!prevFlippedRef.current && isFlipped) {
       // Flipping forward - reset flip-back state
-      setIsFlippingBack(false);
+      setTimeout(() => setIsFlippingBack(false), 0);
     }
     prevFlippedRef.current = isFlipped;
   }, [isFlipped, duration]);

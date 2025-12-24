@@ -1,10 +1,10 @@
 const Footer = () => {
   return (
-    <footer className="flex items-center justify-center w-full p-8">
+    <footer className="flex items-center justify-center w-full p-8 w-full text-center">
       <p className="text-sm text-gray-500">
         &copy; {new Date().getFullYear()} Neural Nector -{" "}
         <a
-          href="https://github.com/TheBoyRoy05"
+          href="https://issacroy.com/#/"
           target="_blank"
           rel="noopener noreferrer"
           className="link"

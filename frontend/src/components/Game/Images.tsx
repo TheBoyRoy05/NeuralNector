@@ -1,6 +1,7 @@
 import { useGame } from "../../hooks/useGame";
 import useGetImages from "../../hooks/useGetImages";
 import useGameLogic from "../../hooks/useGameLogic";
+import useResponsive from "../../hooks/useResponsive";
 import FlipCard from "./FlipCard";
 
 export interface ImageProps {
@@ -14,15 +15,27 @@ const Images = () => {
   const { images } = useGetImages();
   const { boardSize, isGameStarted, isReviewing, reviewResults, currentReviewIndex } = useGame();
   const { selectedImages, handleImageClick } = useGameLogic({ images });
+  const { size: screenWidth } = useResponsive();
 
   const imageSize = 512 / boardSize;
-  const gridCols = `grid-cols-${boardSize}`;
-  const gridWidth = boardSize * imageSize + (boardSize - 1) * 16;
+  
+  // Calculate responsive columns: mobile uses fewer columns, desktop uses full boardSize
+  const columns = screenWidth < 600
+    ? Math.max(1, Math.min(4, Math.floor(boardSize / 2)))
+    : screenWidth < 768
+    ? Math.min(4, boardSize)
+    : boardSize;
+  
+  // Calculate grid width based on actual columns
+  const gridWidth = columns * imageSize + (columns - 1) * 16;
 
   return (
     <div
-      className={`grid ${gridCols} gap-4 items-center justify-center`}
-      style={{ width: `${gridWidth}px` }}
+      className="grid gap-4 items-center justify-center"
+      style={{ 
+        width: `${gridWidth}px`,
+        gridTemplateColumns: `repeat(${columns}, ${imageSize}px)`
+      }}
     >
       {images.map((image, index) => {
         const isCurrentlyReviewing = isReviewing && currentReviewIndex >= index;

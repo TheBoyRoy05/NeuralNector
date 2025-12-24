@@ -60,7 +60,7 @@ const Controls = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
+    <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-4 w-full">
       <button
         className="btn btn-primary btn-lg md:btn-xl"
         onClick={handleStartClick}
@@ -68,13 +68,13 @@ const Controls = () => {
       >
         {isReviewComplete ? "Restart" : isReviewing ? "Reviewing..." : isGameStarted ? "Submit" : "Start"}
       </button>
-      <div className="text-2xl font-bold">
+      <div className="text-2xl font-bold order-first md:order-none">
         {formatTime(elapsedTime)}
       </div>
       <select
         name="board-size"
         id="board-size"
-        className="select select-outline select-lg md:order-first max-w-[225px]"
+        className="select select-outline select-lg order-last md:order-first max-w-[225px]"
         value={boardSize}
         onChange={(e) => setBoardSize(Number(e.target.value))}
         disabled={isGameStarted || isReviewing}
