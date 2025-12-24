@@ -1,10 +1,13 @@
 import { create } from "zustand";
 
+import type { ImageProps } from "../components/Game/Images";
+
 interface GameState {
   score: number;
   timeBonus: number;
   highScores: Record<number, number>; // boardSize -> highScore
   boardSize: number;
+  ratio: string;
   ratioType: "equal" | "random";
   isGameStarted: boolean;
   isReviewing: boolean;
@@ -13,6 +16,8 @@ interface GameState {
   reviewResults: Record<string, "correct" | "incorrect" | null>;
   currentReviewIndex: number;
   imageRefreshKey: number; // Increments to trigger image refetch
+  images: ImageProps[];
+  setImages: (images: ImageProps[]) => void;
   setScore: (score: number) => void;
   setTimeBonus: (timeBonus: number) => void;
   setHighScore: (boardSize: number, score: number) => void;
@@ -25,6 +30,7 @@ interface GameState {
   startGame: () => void;
   resetGame: () => void;
   startReview: () => void;
+  setRatio: (ratio: string) => void;
 }
 
 export const useGame = create<GameState>((set, get) => {
@@ -33,6 +39,7 @@ export const useGame = create<GameState>((set, get) => {
     timeBonus: 0,
     highScores: {},
     boardSize: 4,
+    ratio: "8:8",
     ratioType: "equal",
     isGameStarted: false,
     isReviewing: false,
@@ -41,6 +48,8 @@ export const useGame = create<GameState>((set, get) => {
     reviewResults: {},
     currentReviewIndex: 0,
     imageRefreshKey: 0,
+    images: [],
+    setImages: (images) => set({ images }),
     setScore: (score) => set({ score }),
     setTimeBonus: (timeBonus) => set({ timeBonus }),
     setHighScore: (boardSize, score) => {
@@ -68,5 +77,6 @@ export const useGame = create<GameState>((set, get) => {
       imageRefreshKey: get().imageRefreshKey + 1 // Increment to trigger refetch
     }),
     startReview: () => set({ isReviewing: true, currentReviewIndex: 0 }),
+    setRatio: (ratio) => set({ ratio }),
   };
 });

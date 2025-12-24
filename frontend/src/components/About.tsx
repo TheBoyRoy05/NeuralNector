@@ -19,6 +19,7 @@ const About = () => {
           These components are trained with opposite goals. The generator learns to create realistic
           fakes, while the discriminator learns to spot the difference between real and generated flowers.
         </p>
+        <a className="btn btn-outline btn-lg md:btn-xl">Learn More</a>
       </div>
     </section>
   );

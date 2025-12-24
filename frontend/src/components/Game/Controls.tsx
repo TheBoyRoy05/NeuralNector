@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useGame } from "../../hooks/useGame";
 import useGetImages from "../../hooks/useGetImages";
 
@@ -25,15 +25,27 @@ const Controls = () => {
   const isReviewComplete = showCompletionModal || 
     (isReviewing && Object.keys(reviewResults).length > 0 && currentReviewIndex >= images.length - 1);
 
+  const startTimeRef = useRef<number | null>(null);
+
   // Timer effect - stops when reviewing
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
     
     if (isGameStarted && !isReviewing) {
+      // Initialize start time if not set, or account for existing elapsed time
+      if (startTimeRef.current === null) {
+        startTimeRef.current = Date.now() - elapsedTime * 1000;
+      }
+      
       interval = setInterval(() => {
-        const currentTime = useGame.getState().elapsedTime;
-        setElapsedTime(currentTime + 1);
-      }, 1000);
+        if (startTimeRef.current !== null) {
+          const elapsed = (Date.now() - startTimeRef.current) / 1000; // Convert to seconds with decimals
+          setElapsedTime(elapsed);
+        }
+      }, 100); // Update every 100ms for smooth display
+    } else {
+      // Reset start time when game stops or reviewing starts
+      startTimeRef.current = null;
     }
 
     return () => {
@@ -41,7 +53,7 @@ const Controls = () => {
         clearInterval(interval);
       }
     };
-  }, [isGameStarted, isReviewing, setElapsedTime]);
+  }, [isGameStarted, isReviewing, setElapsedTime, elapsedTime]);
 
   const handleStartClick = () => {
     if (isReviewComplete) {
@@ -55,8 +67,9 @@ const Controls = () => {
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    const secs = Math.floor(seconds % 60);
+    const milliseconds = Math.floor((seconds % 1) * 100);
+    return `${mins}:${secs.toString().padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
   };
 
   return (

@@ -1,15 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { ImageProps } from "../components/Game/Images";
 import useHTTP from "./useHTTP";
 import { useGame } from "./useGame";
 
+// Module-level ref to prevent duplicate fetches across all hook instances
+let fetchingRef = false;
+let lastFetchKeyRef = "";
+
 export default function useGetImages() {
   const { http } = useHTTP();
-  const { boardSize, ratioType, imageRefreshKey } = useGame();
-  const [images, setImages] = useState<ImageProps[]>([]);
+  const { boardSize, ratioType, imageRefreshKey, setRatio, images, setImages } = useGame();
 
   useEffect(() => {
+    const fetchKey = `${boardSize}-${ratioType}-${imageRefreshKey}`;
+    
+    // Prevent duplicate fetches across all instances
+    if (fetchingRef || lastFetchKeyRef === fetchKey) {
+      return;
+    }
+
     const fetchImages = async () => {
+      fetchingRef = true;
+      lastFetchKeyRef = fetchKey;
+
       const totalImages = boardSize * boardSize;
       let numReal: number;
       let numFake: number;
@@ -23,6 +36,8 @@ export default function useGetImages() {
         numReal = Math.floor(Math.random() * (totalImages - 1)) + 1;
         numFake = totalImages - numReal;
       }
+
+      setRatio(`${numReal}:${numFake}`);
 
       const allImages: ImageProps[] = [];
 
@@ -39,9 +54,11 @@ export default function useGetImages() {
 
       const shuffled = allImages.sort(() => Math.random() - 0.5);
       setImages(shuffled);
+      fetchingRef = false;
     };
 
     fetchImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [http, boardSize, ratioType, imageRefreshKey]);
 
   return { images };

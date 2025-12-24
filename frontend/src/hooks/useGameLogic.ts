@@ -81,15 +81,14 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
         // Formula: 50 * (1 - min(time/maxTime, 1)) where maxTime is the maximum time for the board size
         const maxTime = { 2: 10, 4: 30, 6: 60, 8: 120 }[boardSize];
         const timeBonus = 50 * (1 - Math.min(elapsedTime / (maxTime || 30), 1));
-        const roundedTimeBonus = Math.round(timeBonus);
 
         // Ratio multiplier: random gets 1.33x, equal gets 1.0x
         const ratioMultiplier = ratioType === "random" ? 1.33 : 1.0;
-        const baseScore = correctnessScore + roundedTimeBonus;
-        const finalScore = Math.round(baseScore * ratioMultiplier);
+        const baseScore = correctnessScore + timeBonus;
+        const finalScore = baseScore * ratioMultiplier;
         
         setScore(finalScore);
-        setTimeBonus(roundedTimeBonus);
+        setTimeBonus(timeBonus);
         setHighScore(boardSize, finalScore);
 
         // Show modal after 500ms
