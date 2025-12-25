@@ -25,7 +25,6 @@ class LeaderboardEntryDB(Base):
 
 class LeaderboardResponse(BaseModel):
     """Response model for leaderboard entries."""
-
     name: Optional[str] = None  # undefined indicates the user's row
     score: Optional[float] = None
     rank: Optional[int] = None  # undefined indicates a separator row
@@ -96,6 +95,23 @@ def _insert_user(entries: List[tuple], user_score: float) -> tuple[List[Leaderbo
         for i, e in enumerate(entries)
     ]
     return response, index
+
+
+def create_leaderboard_entry(
+    db: Session, entry_data: LeaderboardEntryCreate
+) -> LeaderboardEntryDB:
+    """Create a new leaderboard entry in the database."""
+    db_entry = LeaderboardEntryDB(
+        name=entry_data.name,
+        difficulty=entry_data.difficulty,
+        ratio=entry_data.ratio,
+        score=entry_data.score,
+        devicetype=entry_data.devicetype,
+    )
+    db.add(db_entry)
+    db.commit()
+    db.refresh(db_entry)
+    return db_entry
 
 
 def get_leaderboard(db: Session, diff: str, top_n: int, score: float) -> List[LeaderboardResponse]:

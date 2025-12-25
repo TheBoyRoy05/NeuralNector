@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session
 from images import ImageInfo, get_images_from_zip
 from leaderboard import (
     LeaderboardResponse,
-    get_leaderboard_with_user,
+    LeaderboardEntryCreate,
+    get_leaderboard,
+    create_leaderboard_entry,
     get_db,
 )
 
@@ -50,4 +52,20 @@ async def get_leaderboard(
     db: Session = Depends(get_db),
 ):
     """Get leaderboard entries with user's score inserted appropriately."""
-    return get_leaderboard_with_user(db, difficulty, top_n, user_score)
+    return get_leaderboard(db, difficulty, top_n, user_score)
+
+
+@app.post("/api/v1/leaderboard", response_model=dict)
+async def post_score(
+    entry: LeaderboardEntryCreate,
+    db: Session = Depends(get_db),
+):
+    """Submit a score to the leaderboard."""
+    db_entry = create_leaderboard_entry(db, entry)
+    return {
+        "id": db_entry.id,
+        "name": db_entry.name,
+        "score": db_entry.score,
+        "difficulty": db_entry.difficulty,
+        "message": "Score submitted successfully",
+    }
