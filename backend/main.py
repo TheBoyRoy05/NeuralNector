@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from fastapi import Depends, FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,14 +45,15 @@ async def get_images(
 
 
 @app.get("/api/v1/leaderboard", response_model=List[LeaderboardResponse])
-async def get_leaderboard(
+async def get_leaderboard_endpoint(
     difficulty: str = Query(..., description="Difficulty level"),
     top_n: int = Query(..., ge=1, le=100, description="Number of top leaderboard rows to view"),
-    user_score: float = Query(..., ge=0, description="User's score"),
+    user_score: Optional[float] = Query(None, ge=0, description="User's score, None if refetch"),
+    user_id: Optional[int] = Query(None, description="User's id, None if refetch"),
     db: Session = Depends(get_db),
 ):
     """Get leaderboard entries with user's score inserted appropriately."""
-    return get_leaderboard(db, difficulty, top_n, user_score)
+    return get_leaderboard(db, difficulty, top_n, user_score, user_id)
 
 
 @app.post("/api/v1/leaderboard", response_model=dict)

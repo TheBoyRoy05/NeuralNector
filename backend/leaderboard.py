@@ -25,9 +25,11 @@ class LeaderboardEntryDB(Base):
 
 class LeaderboardResponse(BaseModel):
     """Response model for leaderboard entries."""
-    name: Optional[str] = None  # undefined indicates the user's row
+
+    id: Optional[int] = None
+    name: Optional[str] = None  # None indicates the user's row
     score: Optional[float] = None
-    rank: Optional[int] = None  # undefined indicates a separator row
+    rank: Optional[int] = None  # None indicates a separator row
 
 
 # Database setup
@@ -57,10 +59,11 @@ class LeaderboardEntryCreate(BaseModel):
     devicetype: str
 
 
-def _get_all_entries(db: Session, difficulty: str) -> List[tuple]:
+def _get_entries(db: Session, difficulty: str) -> List[LeaderboardResponse]:
     """Get all leaderboard entries for a given difficulty with ranks calculated in SQL"""
     rank_subquery = (
         db.query(
+            LeaderboardEntryDB.id,
             LeaderboardEntryDB.name,
             LeaderboardEntryDB.score,
             func.rank().over(order_by=LeaderboardEntryDB.score.desc()).label("rank"),
@@ -70,36 +73,48 @@ def _get_all_entries(db: Session, difficulty: str) -> List[tuple]:
     )
 
     result = (
-        db.query(rank_subquery.c.name, rank_subquery.c.score, rank_subquery.c.rank)
+        db.query(
+            rank_subquery.c.id,
+            rank_subquery.c.name,
+            rank_subquery.c.score,
+            rank_subquery.c.rank
+        )
         .order_by(rank_subquery.c.score.desc())
         .all()
     )
 
-    return [(row.name, row.score, int(row.rank)) for row in result]
+    return [
+        LeaderboardResponse(id=row.id, name=row.name, score=row.score, rank=int(row.rank))
+        for row in result
+    ]
 
 
-def _insert_user(entries: List[tuple], user_score: float) -> tuple[List[LeaderboardResponse], int]:
+def _get_user_index(entries: List[LeaderboardResponse], id: int) -> int:
+    return next((i for i, entry in enumerate(entries) if entry.id == id), -1)
+
+
+def _insert_user(
+    entries: List[LeaderboardResponse], user_score: float
+) -> tuple[List[LeaderboardResponse], int]:
     """Inserts user into all entries with the correct ranking"""
     # Convert to list of lists so we can modify
-    entries = [list(e) for e in entries]
-    bisect.insort(entries, [None, user_score, 0], key=lambda x: -x[1])
-    index = next(i for i, entry in enumerate(entries) if entry[0] is None)
+    user = LeaderboardResponse(id=None, name=None, score=user_score, rank=None)
+    bisect.insort(entries, user, key=lambda x: -x.score)
+    index = next(i for i, entry in enumerate(entries) if entry.name is None)
 
     # Calculate user's rank
     prev = entries[index - 1]
     in_bounds = 0 < index <= len(entries)
-    entries[index][2] = prev[2] if in_bounds and prev[1] == user_score else index + 1
+    entries[index].rank = prev.rank if in_bounds and prev.score == user_score else index + 1
 
-    response = [
-        LeaderboardResponse(name=e[0], score=e[1], rank=e[2] + (i > index)) # Shift rank after user
+    entries[:] = [
+        LeaderboardResponse(id=e.id, name=e.name, score=e.score, rank=e.rank + (i > index))
         for i, e in enumerate(entries)
     ]
-    return response, index
+    return index
 
 
-def create_leaderboard_entry(
-    db: Session, entry_data: LeaderboardEntryCreate
-) -> LeaderboardEntryDB:
+def create_leaderboard_entry(db: Session, entry_data: LeaderboardEntryCreate) -> LeaderboardEntryDB:
     """Create a new leaderboard entry in the database."""
     db_entry = LeaderboardEntryDB(
         name=entry_data.name,
@@ -114,7 +129,9 @@ def create_leaderboard_entry(
     return db_entry
 
 
-def get_leaderboard(db: Session, diff: str, top_n: int, score: float) -> List[LeaderboardResponse]:
+def get_leaderboard(
+    db: Session, diff: str, top_n: int, score: float, user_id: Optional[int] = None
+) -> List[LeaderboardResponse]:
     """
     Get leaderboard entries with user's score inserted appropriately.
 
@@ -123,16 +140,20 @@ def get_leaderboard(db: Session, diff: str, top_n: int, score: float) -> List[Le
     - User's row (with name=None) inserted in the correct position
     - If user is not in top n, includes a separator row and entries around user's position
     """
+    NUM_AROUND = 2 # number of entries to show above and below user's position
+    
     # Get all entries with ranks calculated in SQL
-    all_entries: List(tuple) = _get_all_entries(db, diff)
-    user_all_entries, user_index = _insert_user(all_entries, score)
+    entries: List[LeaderboardResponse] = _get_entries(db, diff)
+    user_index = _get_user_index(entries, user_id) if user_id else _insert_user(entries, score)
 
-    response = user_all_entries[:top_n]
-    response.append(LeaderboardResponse(name=None, score=None, rank=None))  # separator row
+    response = entries[:top_n]
     if user_index < top_n:
         return response
+        
+    if user_index >= top_n + NUM_AROUND:
+        response.append(LeaderboardResponse(id=None, name=None, score=None, rank=None))  # separator row
 
-    start_idx = max(0, user_index - 2)
-    end_idx = min(len(user_all_entries), user_index + 3)
-    response.extend(user_all_entries[start_idx:end_idx])
+    start_idx = max(0, top_n, user_index - NUM_AROUND)
+    end_idx = min(len(entries), user_index + NUM_AROUND + 1)
+    response.extend(entries[start_idx:end_idx])
     return response

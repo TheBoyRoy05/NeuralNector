@@ -1,7 +1,8 @@
 export interface LeaderboardEntry {
-  name?: string; // undefined indicates the user's row
+  id?: number;
+  name?: string; // null indicates the user's row
   score?: number;
-  rank?: number; // undefined indicates a separator row
+  rank?: number; // null indicates a separator row
 }
 
 export interface PostScoreParams {
