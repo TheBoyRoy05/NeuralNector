@@ -6,6 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from images import ImageInfo, get_images_from_zip
+from leaderboard import (
+    LeaderboardResponse,
+    get_leaderboard_with_user,
+    get_db,
+)
 
 app = FastAPI()
 
@@ -35,3 +40,14 @@ async def get_images(
     """Get a specified number of real and fake flower images from zip files."""
     zip_path = REAL_ZIP if real else FAKE_ZIP
     return get_images_from_zip(zip_path, count, real)
+
+
+@app.get("/api/v1/leaderboard", response_model=List[LeaderboardResponse])
+async def get_leaderboard(
+    difficulty: str = Query(..., description="Difficulty level"),
+    top_n: int = Query(..., ge=1, le=100, description="Number of top leaderboard rows to view"),
+    user_score: float = Query(..., ge=0, description="User's score"),
+    db: Session = Depends(get_db),
+):
+    """Get leaderboard entries with user's score inserted appropriately."""
+    return get_leaderboard_with_user(db, difficulty, top_n, user_score)
