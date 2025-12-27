@@ -17,6 +17,7 @@ interface GameState {
   currentReviewIndex: number;
   imageRefreshKey: number; // Increments to trigger image refetch
   images: ImageProps[];
+  numSelected: number;
   setImages: (images: ImageProps[]) => void;
   setScore: (score: number) => void;
   setTimeBonus: (timeBonus: number) => void;
@@ -27,6 +28,7 @@ interface GameState {
   setReviewResults: (results: Record<string, "correct" | "incorrect" | null>) => void;
   setCurrentReviewIndex: (index: number) => void;
   setShowCompletionModal: (show: boolean) => void;
+  setNumSelected: (num: number) => void;
   startGame: () => void;
   resetGame: () => void;
   startReview: () => void;
@@ -49,7 +51,9 @@ export const useGame = create<GameState>((set, get) => {
     currentReviewIndex: 0,
     imageRefreshKey: 0,
     images: [],
+    numSelected: 0,
     setImages: (images) => set({ images }),
+    setNumSelected: (num) => set({ numSelected: num }),
     setScore: (score) => set({ score }),
     setTimeBonus: (timeBonus) => set({ timeBonus }),
     setHighScore: (boardSize, score) => {
@@ -64,7 +68,7 @@ export const useGame = create<GameState>((set, get) => {
     setReviewResults: (results) => set({ reviewResults: results }),
     setCurrentReviewIndex: (index) => set({ currentReviewIndex: index }),
     setShowCompletionModal: (show) => set({ showCompletionModal: show }),
-    startGame: () => set({ isGameStarted: true, elapsedTime: 0, isReviewing: false, reviewResults: {}, currentReviewIndex: 0, showCompletionModal: false, timeBonus: 0 }),
+    startGame: () => set({ isGameStarted: true, elapsedTime: 0, isReviewing: false, reviewResults: {}, currentReviewIndex: 0, showCompletionModal: false, timeBonus: 0, numSelected: 0 }),
     resetGame: () => set({ 
       isGameStarted: false, 
       score: 0, 
@@ -74,6 +78,7 @@ export const useGame = create<GameState>((set, get) => {
       reviewResults: {}, 
       currentReviewIndex: 0, 
       showCompletionModal: false,
+      numSelected: 0,
       imageRefreshKey: get().imageRefreshKey + 1 // Increment to trigger refetch
     }),
     startReview: () => set({ isReviewing: true, currentReviewIndex: 0 }),

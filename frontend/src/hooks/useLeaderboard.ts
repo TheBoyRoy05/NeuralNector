@@ -36,7 +36,7 @@ export default function useLeaderboard({ limit = 5 }: UseLeaderboardProps = {}) 
   }, [fetchLeaderboard]);
 
   const postScore = useCallback(
-    async ({ name, score }: { name: string, score: number }): Promise<boolean> => {
+    async ({ name, score }: { name: string, score: number }) => {
       const devicetype = getDeviceType();
       let id: number;
 
@@ -47,7 +47,7 @@ export default function useLeaderboard({ limit = 5 }: UseLeaderboardProps = {}) 
         handleData: (data) => {id = (data as LeaderboardEntry).id!},
         handleSuccess: () => fetchLeaderboard(id)
       });
-      return success;
+      return { success, id: id! };
     },
     [http, fetchLeaderboard, difficulty, ratio]
   );

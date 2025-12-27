@@ -23,7 +23,9 @@ const CompletionModal = () => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const milliseconds = Math.floor((seconds % 1) * 100);
-    return `${mins}:${secs.toString().padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}.${milliseconds
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   if (!showCompletionModal) return null;
@@ -34,16 +36,23 @@ const CompletionModal = () => {
         <h3 className="font-regitha text-3xl font-bold mb-4">Congratulations!</h3>
         <p className="font-beezle text-xl mb-4">
           You beat the <span className="font-bold">{getDifficultyName(boardSize)}</span> mode with{" "}
-          <span className="font-bold">{correctCount}/{totalCount}</span> correct in{" "}
-          <span className="font-bold">{formatTime(elapsedTime)}</span>
+          <span className="font-bold font-sans">
+            {correctCount}/{totalCount}
+          </span>{" "}
+          correct in <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
         </p>
         <div className="flex flex-col gap-2 mb-4">
           <div className="flex justify-between items-center">
-            <span className="font-beezle text-lg">Your Score (Time Bonus +{timeBonus.toFixed(2)}):</span>
+            <span className="font-beezle text-lg">
+              Your Score (Time Bonus
+              <span className="font-bold font-sans"> +{timeBonus.toFixed(2)}</span>):
+            </span>
             <span className="font-bold text-xl">{score.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="font-beezle text-lg">High Score ({getDifficultyName(boardSize)}):</span>
+            <span className="font-beezle text-lg">
+              High Score ({getDifficultyName(boardSize)}):
+            </span>
             <span className="font-bold text-xl">{highScore.toFixed(2)}</span>
           </div>
         </div>
@@ -68,4 +77,3 @@ const CompletionModal = () => {
 };
 
 export default CompletionModal;
-

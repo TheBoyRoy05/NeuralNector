@@ -21,6 +21,7 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
     setTimeBonus,
     setHighScore,
     setShowCompletionModal,
+    setNumSelected,
   } = useGame();
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const prevGameStartedRef = useRef(isGameStarted);
@@ -29,16 +30,22 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
   useEffect(() => {
     if (prevGameStartedRef.current && !isGameStarted) {
       // Game was reset - clear selections (defer to avoid linter warning)
-      setTimeout(() => setSelectedImages(new Set()), 0);
+      setTimeout(() => {
+        setSelectedImages(new Set());
+        setNumSelected(0);
+      }, 0);
     }
     prevGameStartedRef.current = isGameStarted;
-  }, [isGameStarted]);
+  }, [isGameStarted, setNumSelected]);
 
   // Reset selected images when images change (new game started)
   useEffect(() => {
     // Defer to avoid linter warning
-    setTimeout(() => setSelectedImages(new Set()), 0);
-  }, [images.length]);
+    setTimeout(() => {
+      setSelectedImages(new Set());
+      setNumSelected(0);
+    }, 0);
+  }, [images.length, setNumSelected]);
 
   // Calculate review results when review starts
   useEffect(() => {
@@ -122,6 +129,7 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
       } else {
         newSet.add(imageId);
       }
+      setNumSelected(newSet.size);
       return newSet;
     });
   };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import useLeaderboard from "../../hooks/useLeaderboard";
 import { useGame } from "../../hooks/useGame";
 import { getDifficultyName } from "../../Utils/functions";
@@ -9,17 +9,45 @@ const Leaderboard = () => {
   const [playerName, setPlayerName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const userRowRef = useRef<HTMLTableRowElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!playerName.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
-    const success = await postScore({ name: playerName.trim(), score });
+    const { success, id } = await postScore({ name: playerName.trim(), score });
     setSuccess(success);
+    setUserId(id);
     setPlayerName("");
     setIsSubmitting(false);
   };
+
+  useEffect(() => {
+    if (!scrollContainerRef.current || entries.length === 0) return;
+    
+    const timeoutId = setTimeout(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      
+      const userRow = userRowRef.current || 
+        (userId ? container.querySelector(`[data-user-id="${userId}"]`) : null) ||
+        container.querySelector('tr[data-is-user-entry="true"]') as HTMLTableRowElement;
+      
+      if (userRow) {
+        const thead = container.querySelector('thead');
+        const theadHeight = thead?.offsetHeight || 0;
+        const rowPosition = userRow.offsetTop - theadHeight;
+        const scrollPosition = rowPosition - (container.clientHeight * 0.4) + (userRow.offsetHeight / 2);
+        
+        container.scrollTo({ top: Math.max(0, scrollPosition), behavior: 'smooth' });
+      }
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
+  }, [userId, entries]);
 
   if (loading) {
     return (
@@ -47,30 +75,35 @@ const Leaderboard = () => {
       )}
 
       <div className="overflow-x-auto">
-        <table className="table table-xs table-zebra w-full">
-          <thead>
-            <tr>
-              <th className="font-beezle text-xl">Rank</th>
-              <th className="font-beezle text-xl">Name</th>
-              <th className="font-beezle text-xl">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, index) => {
-              // Handle separator row (rank is null)
-              if (entry.rank === null) {
-                return (
-                  <tr key={`separator-${index}`} className="bg-base-200">
-                    <td colSpan={3} className="text-center py-2">
-                      <span className="text-lg opacity-50">...</span>
-                    </td>
-                  </tr>
-                );
-              }
+        <div ref={scrollContainerRef} className="overflow-y-auto" style={{ maxHeight: "calc(5 * 2.8rem)" }}>
+          <table className="table table-xs table-zebra w-full">
+            <thead className="sticky top-0 bg-base-100 z-10">
+              <tr>
+                <th className="font-beezle text-xl">Rank</th>
+                <th className="font-beezle text-xl">Name</th>
+                <th className="font-beezle text-xl">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map((entry, index) => {
+                if (entry.rank === null) {
+                  return (
+                    <tr key={`separator-${index}`} className="bg-base-200">
+                      <td colSpan={3} className="text-center py-2">
+                        <span className="text-lg opacity-50">...</span>
+                      </td>
+                    </tr>
+                  );
+                }
 
-              if (entry.name === null && success !== true) {
+              if (entry.name === null && userId == null) {
                 return (
-                  <tr key={`user-${index}`} className="bg-primary/20 text-lg">
+                  <tr 
+                    key={`user-${index}`} 
+                    ref={userRowRef}
+                    data-is-user-entry="true"
+                    className="bg-primary/20 text-lg"
+                  >
                     <td className="font-beezle">#{entry.rank}</td>
                     <td className="font-beezle">
                       <form onSubmit={handleSubmit} className="flex gap-2">
@@ -96,23 +129,30 @@ const Leaderboard = () => {
                         </button>
                       </form>
                     </td>
-                    <td className="font-beezle font-bold">{entry.score?.toFixed(2)}</td>
+                    <td className="font-bold">{entry.score?.toFixed(2)}</td>
                   </tr>
                 );
               }
 
               if (entry.name !== null) {
+                const isUserRow = entry.id === userId;
                 return (
-                  <tr key={`entry-${index}-${entry.name}`} className="text-lg">
+                  <tr 
+                    key={`entry-${index}-${entry.name}`} 
+                    ref={isUserRow ? userRowRef : null}
+                    data-user-id={entry.id}
+                    className={`text-lg ${isUserRow && "bg-primary/20"}`}
+                  >
                     <td className="font-beezle">#{entry.rank}</td>
                     <td className="font-beezle">{entry.name}</td>
-                    <td className="font-beezle font-bold">{entry.score?.toFixed(2)}</td>
+                    <td className="font-bold">{entry.score?.toFixed(2)}</td>
                   </tr>
                 );
               }
             })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
