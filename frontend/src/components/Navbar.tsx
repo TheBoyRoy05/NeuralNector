@@ -13,9 +13,8 @@ const Navbar = () => {
     <nav className="flex flex-col md:flex-row items-center justify-between gap-8 w-full p-8 sticky top-0 z-10 bg-base-100 border-b-2 border-primary">
       <div className="flex items-center justify-between w-full">
         <h1 className="font-regitha fl-text-2xl/4xl">🌼 Neural Nector 🌼</h1>
-        {/* <h1 className="font-regitha text-3xl ">🌼 Neural Nector 🌼</h1> */}
         <label className="swap swap-rotate md:hidden">
-          <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
+          <input id="menu-toggle" type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
           <IoClose aria-label="enabled" className="swap-on text-2xl" />
           <GiHamburgerMenu aria-label="disabled" className="swap-off text-2xl" />
         </label>
@@ -46,7 +45,7 @@ const Navbar = () => {
         </a>
         
         <label className="swap swap-rotate hidden md:inline-grid tooltip tooltip-bottom" id="theme-toggle" title="Toggle Theme" data-tip="Toggle Theme">
-          <input type="checkbox" checked={isDark} onChange={toggleTheme} />
+          <input id="theme-toggle" type="checkbox" checked={isDark} onChange={toggleTheme} />
           <MdLightMode className="swap-off" aria-label="disabled" />
           <MdDarkMode className="swap-on" aria-label="enabled" />
         </label>
