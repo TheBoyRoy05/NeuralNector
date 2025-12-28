@@ -1,6 +1,5 @@
-# Neural Nector
+<h1 align="center">Neural Nector - Can you tell the difference?</h1>
 
-<h2 align="center">Can you tell the difference?</h2>
 <img src='frontend/src/assets/images/neural-nector.png'>
 
 [Neural Nector](https://neuralnector.com) is an interactive web game that challenges players to identify AI-generated (fake) flowers from real ones. Test your perception skills as you navigate through different difficulty levels, compete on leaderboards, and see if you can spot the difference!
