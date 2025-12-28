@@ -42,7 +42,7 @@ const Images = () => {
 
         return (
           <FlipCard
-            key={image.image_id}
+            key={`${image.image_id}-${index}`}
             image={image}
             index={index}
             isFlipped={isGameStarted}

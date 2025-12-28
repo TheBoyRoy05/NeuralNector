@@ -18,7 +18,7 @@ const Landing = () => {
   }, []);
 
   return (
-    <section className="min-h-screen flex flex-col items-center gap-[5vh] md:fl-gap-0/32 py-[20vh] md:py-[5vw]">
+    <section className="min-h-screen flex flex-col items-center gap-[5vh] md:fl-gap-0/32 py-[10vh] md:py-[5vw]">
       <h1 className="font-regitha fl-text-4xl/7xl">Neural Nector</h1>
 
       <div className="flex flex-col-reverse xl:flex-row items-center gap-[calc(8vw-2rem)]">
