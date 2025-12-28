@@ -5,8 +5,8 @@ nixPkgs = ["nodejs-18_x", "python311", "python311Packages.pip", "python311Packag
 cmds = [
   "cd frontend && npm install",
   "python3 -m venv /app/venv",
-  "/app/venv/bin/pip install --upgrade pip",
-  "/app/venv/bin/pip install -r backend/requirements.txt"
+  "source /app/venv/bin/activate && pip install --upgrade pip",
+  "source /app/venv/bin/activate && pip install -r backend/requirements.txt"
 ]
 
 [phases.build]
@@ -17,5 +17,5 @@ cmds = [
 ]
 
 [start]
-cmd = "cd backend && /app/venv/bin/python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"
+cmd = "cd backend && source /app/venv/bin/activate && python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"
 
