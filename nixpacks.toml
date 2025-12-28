@@ -3,7 +3,9 @@ nixPkgs = ["nodejs", "python311", "python311Packages.pip", "python311Packages.se
 
 [phases.install]
 cmds = [
-  "cd frontend && rm -rf node_modules package-lock.json && npm install node",
+  "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash",
+  "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm install 22 && nvm use 22",
+  "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm use 22 && cd frontend && npm install",
   "python3 -m venv /app/venv",
   "source /app/venv/bin/activate && pip install --upgrade pip",
   "source /app/venv/bin/activate && pip install -r backend/requirements.txt"
@@ -11,7 +13,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "cd frontend && npm run build",
+  "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm use 22",
+  "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm use 22 && cd frontend && npm run build",
   "mkdir -p backend/static",
   "cp -r frontend/dist/* backend/static/"
 ]
