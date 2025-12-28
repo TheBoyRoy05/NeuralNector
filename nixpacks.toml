@@ -13,7 +13,7 @@ cmds = [
 cmds = [
   "cd frontend && npm run build",
   "mkdir -p backend/static",
-  "cp -r frontend/dist/* backend/static/ || true"
+  "cp -r frontend/dist/* backend/static/"
 ]
 
 [start]
