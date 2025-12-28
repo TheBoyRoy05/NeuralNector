@@ -8,7 +8,6 @@ export interface ImageProps {
   image_id: string;
   image_data: string;
   is_real: boolean;
-  score: number;
 }
 
 const Images = () => {
