@@ -4,17 +4,17 @@ nixPkgs = ["nodejs-18_x", "python311"]
 [phases.install]
 cmds = [
   "cd frontend && npm install",
-  "pip install --upgrade pip",
-  "pip install -r backend/requirements.txt"
+  "python3 -m pip install --upgrade pip",
+  "python3 -m pip install -r backend/requirements.txt"
 ]
 
 [phases.build]
 cmds = [
   "cd frontend && npm run build",
   "mkdir -p backend/static",
-  "cp -r frontend/dist/* backend/static/"
+  "cp -r frontend/dist/* backend/static/ || true"
 ]
 
 [start]
-cmd = "cd backend && python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"
+cmd = "cd backend && python3 -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"
 
