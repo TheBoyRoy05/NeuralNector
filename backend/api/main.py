@@ -3,6 +3,8 @@ from typing import List, Optional
 
 from fastapi import Depends, FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from api.images import ImageInfo, get_images_from_zip
@@ -27,6 +29,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve static files from backend/static (copied from frontend/dist during build)
+STATIC_DIR = Path(__file__).parent.parent / "static"
+if STATIC_DIR.exists():
+    # Serve static assets (JS, CSS, images, etc.)
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+    
+    @app.get("/")
+    async def serve_frontend():
+        """Serve the frontend index.html"""
+        index_path = STATIC_DIR / "index.html"
+        if index_path.exists():
+            return FileResponse(index_path)
+        return {"message": "Frontend not built. Run 'npm run build'."}
 
 # Data directory is one level up from api/
 DATA_DIR = Path(__file__).parent.parent / "data"

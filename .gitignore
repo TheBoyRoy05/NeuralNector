@@ -31,3 +31,6 @@ __pycache__
 *.db
 *.sqlite
 *.sqlite3
+
+# Environment variables
+.env
