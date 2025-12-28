@@ -1,50 +1,17 @@
 import base64
-import io
 import random
-import sys
 import zipfile
 from pathlib import Path
 from typing import List
 
-import torch
-import torchvision.transforms as transforms
 from fastapi import HTTPException
 from pydantic import BaseModel
-
-sys.path.insert(0, str(Path(__file__).parent / "scripts"))
-from models import GAN, load_gan_model
-
-IMAGE_SIZE = 64
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-gan_model: GAN = load_gan_model(DEVICE)
 
 
 class ImageInfo(BaseModel):
     image_id: str
     image_data: str
     is_real: bool
-    score: float
-
-
-def score_image_from_bytes(model: GAN, img_bytes: bytes) -> float:
-    """Score an image from bytes using the discriminator."""
-    transform = transforms.Compose(
-        [
-            transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-        ]
-    )
-
-    from PIL import Image
-
-    img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-    tensor = transform(img).unsqueeze(0).to(DEVICE)
-
-    model.discriminator.eval()
-    with torch.no_grad():
-        score = model.discriminator(tensor)
-        return score.squeeze().cpu().item()
 
 
 def get_images_from_zip(
@@ -52,7 +19,7 @@ def get_images_from_zip(
     count: int,
     real: bool,
 ) -> List[ImageInfo]:
-    """Get images from zip file and score them."""
+    """Get images from zip file."""
     if not zip_path.exists():
         raise HTTPException(
             status_code=404,
@@ -87,14 +54,11 @@ def get_images_from_zip(
                 img_base64 = base64.b64encode(img_bytes).decode("utf-8")
                 image_data = f"data:image/jpeg;base64,{img_base64}"
 
-                score = round(score_image_from_bytes(gan_model, img_bytes), 4)
-
                 images.append(
                     ImageInfo(
                         image_id=f"{'real' if real else 'fake'}_{Path(img_name).stem}",
                         image_data=image_data,
                         is_real=real,
-                        score=score,
                     )
                 )
             except Exception as e:

@@ -18,10 +18,13 @@ const useHTTP = () => {
     setLoading(true);
 
     try {
+      // Use environment variable or default to relative path (same origin)
+      const apiUrl = import.meta.env.VITE_API_URL || "/api/v1";
+      
       const config: AxiosRequestConfig = {
         method,
         headers: { "Content-Type": "application/json" },
-        url: `http://localhost:8000/api/v1${url}`,
+        url: `${apiUrl}${url}`,
       };
 
       if (method.toUpperCase() === "GET" && body) {

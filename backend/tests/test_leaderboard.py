@@ -1,5 +1,5 @@
 """Test script for leaderboard functionality."""
-from leaderboard import (
+from api.leaderboard import (
     LeaderboardEntryDB,
     LeaderboardEntryCreate,
     get_leaderboard,

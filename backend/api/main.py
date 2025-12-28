@@ -3,10 +3,12 @@ from typing import List, Optional
 
 from fastapi import Depends, FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from images import ImageInfo, get_images_from_zip
-from leaderboard import (
+from api.images import ImageInfo, get_images_from_zip
+from api.leaderboard import (
     LeaderboardResponse,
     LeaderboardEntryCreate,
     get_leaderboard,
@@ -16,15 +18,36 @@ from leaderboard import (
 
 app = FastAPI()
 
+# CORS - Update with your production frontend URL
+import os
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-DATA_DIR = Path("data")
+# Serve static files from backend/static (copied from frontend/dist during build)
+STATIC_DIR = Path(__file__).parent.parent / "static"
+if STATIC_DIR.exists():
+    # Serve static assets (JS, CSS, images, etc.)
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+    
+    @app.get("/")
+    async def serve_frontend():
+        """Serve the frontend index.html"""
+        index_path = STATIC_DIR / "index.html"
+        if index_path.exists():
+            return FileResponse(index_path)
+        return {"message": "Frontend not built. Run 'npm run build'."}
+
+# Data directory is one level up from api/
+DATA_DIR = Path(__file__).parent.parent / "data"
 REAL_ZIP = DATA_DIR / "real.zip"
 FAKE_ZIP = DATA_DIR / "fake.zip"
 
@@ -70,3 +93,4 @@ async def post_score(
         "difficulty": db_entry.difficulty,
         "message": "Score submitted successfully",
     }
+
