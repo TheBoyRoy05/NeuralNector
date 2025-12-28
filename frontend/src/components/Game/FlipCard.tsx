@@ -66,11 +66,19 @@ const FlipCard = ({ image, index, isFlipped, size, boardSize, isSelected, review
     borderWidth = "border-4";
   }
 
-  const isClickable = reviewResult === null;
+  const isClickable = isFlipped && reviewResult === null;
+  const showRealFakeLabel = reviewResult !== null;
+  
+  // Calculate badge size based on card size
+  const badgeSize = 
+    size === 64 ? "text-xs px-1.5 py-0.5" : 
+    size === 96 ? "text-sm px-2 py-1" : 
+    size === 256 ? "text-lg px-3 py-1.5" : 
+    "text-base px-2.5 py-1";
   
   return (
     <div
-      className={`flip-card-container ${isClickable ? "cursor-pointer" : "cursor-default"}`}
+      className={`flip-card-container ${isClickable ? "cursor-pointer" : "cursor-default"} relative`}
       style={{ 
         width: `${size}px`, 
         height: `${size}px`,
@@ -94,13 +102,24 @@ const FlipCard = ({ image, index, isFlipped, size, boardSize, isSelected, review
               <span className={questionMarkSize}>?</span>
             </div>
           </div>
-          <div className="flip-card-back">
+          <div className="flip-card-back relative">
             <img
               src={image.image_data}
               alt="Image"
               className={`object-cover rounded-lg ${borderClass} ${borderWidth} transition-all`}
               style={{ width: `${size}px`, height: `${size}px` }}
             />
+            {showRealFakeLabel && (
+              <div
+                className={`absolute top-2 left-2 ${badgeSize} font-bold rounded-md shadow-lg ${
+                  image.is_real 
+                    ? "bg-success text-success-content" 
+                    : "bg-error text-error-content"
+                }`}
+              >
+                {image.is_real ? "REAL" : "FAKE"}
+              </div>
+            )}
           </div>
         </div>
       </div>
