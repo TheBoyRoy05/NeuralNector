@@ -33,13 +33,19 @@ class LeaderboardResponse(BaseModel):
 
 
 # Database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./leaderboard.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+import os
+database_url = os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL") or "sqlite:///./leaderboard.db"
+
+if database_url.startswith("postgres"):
+    # PostgreSQL connection
+    engine = create_engine(database_url, pool_pre_ping=True)
+else:
+    # SQLite connection (for local development)
+    engine = create_engine(database_url, connect_args={"check_same_thread": False})
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Drop and recreate tables to ensure schema is up to date
-# In production, you'd use migrations (Alembic) instead
-Base.metadata.drop_all(bind=engine)
+# Only create tables if they don't exist (never drop in production!)
 Base.metadata.create_all(bind=engine)
 
 
@@ -157,3 +163,4 @@ def get_leaderboard(
     end_idx = min(len(entries), user_index + NUM_AROUND + 1)
     response.extend(entries[start_idx:end_idx])
     return response
+

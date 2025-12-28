@@ -5,8 +5,8 @@ from fastapi import Depends, FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from images import ImageInfo, get_images_from_zip
-from leaderboard import (
+from api.images import ImageInfo, get_images_from_zip
+from api.leaderboard import (
     LeaderboardResponse,
     LeaderboardEntryCreate,
     get_leaderboard,
@@ -16,15 +16,20 @@ from leaderboard import (
 
 app = FastAPI()
 
+# CORS - Update with your production frontend URL
+import os
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-DATA_DIR = Path("data")
+# Data directory is one level up from api/
+DATA_DIR = Path(__file__).parent.parent / "data"
 REAL_ZIP = DATA_DIR / "real.zip"
 FAKE_ZIP = DATA_DIR / "fake.zip"
 
@@ -70,3 +75,4 @@ async def post_score(
         "difficulty": db_entry.difficulty,
         "message": "Score submitted successfully",
     }
+
