@@ -11,7 +11,7 @@ const Landing = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768); // md breakpoint
     };
-    
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -28,10 +28,20 @@ const Landing = () => {
             These flowers never grew in a garden... <br /> or did they?
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-4">
-            <button className="btn btn-primary btn-lg md:btn-xl" onClick={() => scrollTo("game", isMobile ? 120 : 50)}>
+            <button
+              className="btn btn-primary btn-lg md:btn-xl"
+              onClick={() => scrollTo("game", isMobile ? 120 : 50)}
+            >
               Play
             </button>
-            <a className="btn btn-outline btn-lg md:w-36 md:order-first">Learn More</a>
+            <a
+              href="https://www.issacroy.com/#/neural-nector"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline btn-lg md:w-36 md:order-first"
+            >
+              Learn More
+            </a>
             <a
               className="btn btn-outline btn-lg md:w-36"
               href="https://github.com/TheBoyRoy05/NeuralNector"
@@ -59,7 +69,7 @@ const Landing = () => {
           />
         </div>
       </div>
-      
+
       <ScrollArrow id="about" offset={isMobile ? 120 : 250} />
     </section>
   );

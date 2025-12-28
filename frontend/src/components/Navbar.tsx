@@ -26,7 +26,7 @@ const Navbar = () => {
         }`}
       >
         <a
-          href="https://github.com/TheBoyRoy05/NeuralNector"
+          href="https://www.issacroy.com/#/neural-nector"
           target="_blank"
           rel="noopener noreferrer"
           title="Documentation"
