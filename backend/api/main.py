@@ -45,6 +45,14 @@ if STATIC_DIR.exists():
         if index_path.exists():
             return FileResponse(index_path)
         return {"message": "Frontend not built. Run 'npm run build'."}
+    
+    @app.get("/favicon.svg")
+    async def serve_favicon():
+        """Serve the favicon"""
+        favicon_path = STATIC_DIR / "favicon.svg"
+        if favicon_path.exists():
+            return FileResponse(favicon_path, media_type="image/svg+xml")
+        return {"message": "Favicon not found"}, 404
 
 # Data directory is one level up from api/
 DATA_DIR = Path(__file__).parent.parent / "data"
