@@ -16,7 +16,7 @@ const CompletionModal = () => {
     images,
   } = useGame();
 
-  const { TP, FP, FN, f1Score } = calculateF1Score(images, reviewResults);
+  const { f1Score } = calculateF1Score(images, reviewResults);
   const highScore = highScores[boardSize] || 0;
 
   const formatTime = (seconds: number) => {
@@ -36,10 +36,8 @@ const CompletionModal = () => {
         <h3 className="font-regitha text-3xl font-bold mb-4">Congratulations!</h3>
         <p className="font-beezle text-xl mb-4">
           You beat the <span className="font-bold">{getDifficultyName(boardSize)}</span> mode with{" "}
-          <span className="font-bold font-sans">
-            F1: {f1Score.toFixed(2)}
-          </span>{" "}
-          ({TP} TP, {FP} FP, {FN} FN) in <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
+          <span className="font-bold font-sans">F1: {f1Score.toFixed(2)}</span> in{" "}
+          <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
         </p>
         <div className="flex flex-col gap-2 mb-4">
           <div className="flex justify-between items-center">
