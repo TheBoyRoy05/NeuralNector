@@ -1,5 +1,5 @@
 import { useGame } from "../../hooks/useGame";
-import { getDifficultyName } from "../../Utils/functions";
+import { calculateF1Score, getDifficultyName } from "../../Utils/functions";
 import Leaderboard from "./Leaderboard";
 
 const CompletionModal = () => {
@@ -16,12 +16,7 @@ const CompletionModal = () => {
     images,
   } = useGame();
 
-  // Calculate recall: proportion of fakes correctly identified
-  const fakeImages = images.filter((img) => !img.is_real);
-  const correctlyIdentifiedFakes = fakeImages.filter(
-    (img) => reviewResults[img.image_id] === "correct"
-  ).length;
-  const recallTotal = fakeImages.length;
+  const { TP, FP, FN, f1Score } = calculateF1Score(images, reviewResults);
   const highScore = highScores[boardSize] || 0;
 
   const formatTime = (seconds: number) => {
@@ -42,9 +37,9 @@ const CompletionModal = () => {
         <p className="font-beezle text-xl mb-4">
           You beat the <span className="font-bold">{getDifficultyName(boardSize)}</span> mode with{" "}
           <span className="font-bold font-sans">
-            {correctlyIdentifiedFakes}/{recallTotal}
+            F1: {f1Score.toFixed(2)}
           </span>{" "}
-          fakes identified in <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
+          ({TP} TP, {FP} FP, {FN} FN) in <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
         </p>
         <div className="flex flex-col gap-2 mb-4">
           <div className="flex justify-between items-center">

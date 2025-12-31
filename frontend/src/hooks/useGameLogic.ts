@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { ImageProps } from "../components/Game/Images";
+import { calculateF1Score } from "../Utils/functions";
 import { useGame } from "./useGame";
+import type { ReviewResults } from "../Utils/types";
 
 interface UseGameLogicProps {
   images: ImageProps[];
@@ -50,7 +52,7 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
   // Calculate review results when review starts
   useEffect(() => {
     if (isReviewing && Object.keys(reviewResults).length === 0) {
-      const results: Record<string, "correct" | "incorrect" | null> = {};
+      const results: ReviewResults = {};
 
       images.forEach((image) => {
         const isSelected = selectedImages.has(image.image_id);
@@ -77,18 +79,11 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
         return () => clearTimeout(timer);
       } else {
         // Review complete - calculate score and show modal after 500ms
-        // Calculate proportion of fakes that were classified properly
-        const fakeImages = images.filter((img) => !img.is_real);
-        const correctlyClassifiedFakes = fakeImages.filter(
-          (img) => reviewResults[img.image_id] === "correct"
-        ).length;
+        const { f1Score } = calculateF1Score(images, reviewResults);
 
-        // Score calculation: correctness (0-50) + time bonus (0-50)
+        // Score calculation: F1 score (0-50) + time bonus (0-50)
         const maxScore = 100;
-        const correctnessScore =
-          fakeImages.length > 0
-            ? ((correctlyClassifiedFakes / fakeImages.length) * maxScore) / 2
-            : maxScore / 2; // If no fakes, give full correctness score
+        const correctnessScore = f1Score * (maxScore / 2);
 
         // Time bonus: faster times get higher bonus (max 50 points)
         const maxTime = { 2: 10, 4: 30, 6: 60, 8: 120 }[boardSize];
@@ -114,6 +109,7 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
     currentReviewIndex,
     images,
     reviewResults,
+    selectedImages,
     elapsedTime,
     boardSize,
     ratioType,

@@ -30,9 +30,12 @@ The game presents you with a grid of flower images - some are real photographs, 
 
 Your score is calculated based on two factors:
 
-- **Correctness Recall (0-50 points)**: Based on the proportion of fake images you correctly identified
-  - Formula: `(correctly identified fakes / total fakes) × 50`
-  - Perfect identification of all fakes = 50 points
+- **F1 Score (0-50 points)**: A balanced metric that considers both precision and recall
+  - Formula: `TP / (TP + 0.5 × (FP + FN)) × 50`
+  - **TP (True Positives)**: Correctly identified fake images
+  - **FP (False Positives)**: Real images incorrectly selected as fake
+  - **FN (False Negatives)**: Fake images you missed
+  - Perfect F1 score (1.0) = 50 points
 
 - **Time Bonus (0-50 points)**: Based on how quickly you complete the game
   - Maximum time limits: Easy (10s), Normal (30s), Hard (60s), Impossible (120s)
@@ -42,7 +45,7 @@ Your score is calculated based on two factors:
   - **Random Ratio**: Applies a multiplier that adds bonus points (up to 25 base points)
   - **Equal Ratio**: No multiplier, raw score only
 
-Final score = (Correctness + Time Bonus) × Ratio Multiplier + Ratio Base Score
+Final score = (F1 Score + Time Bonus) × Ratio Multiplier + Ratio Base Score
 
 ---
 

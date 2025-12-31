@@ -12,3 +12,5 @@ export interface PostScoreParams {
   ratio: string;
   devicetype: string;
 }
+
+export type ReviewResults = Record<string, "correct" | "incorrect" | null>;
