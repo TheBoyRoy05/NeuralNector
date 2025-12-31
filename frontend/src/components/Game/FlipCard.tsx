@@ -81,10 +81,9 @@ const FlipCard = ({ image, index, isFlipped, size, boardSize, isSelected, review
       className={`flip-card-container ${isClickable ? "cursor-pointer" : "cursor-default"} relative`}
       style={{ 
         width: `${size}px`, 
-        height: `${size}px`,
-        pointerEvents: isClickable ? "auto" : "none"
+        height: `${size}px`
       }}
-      onClick={onClick}
+      onClick={() => isClickable && onClick()}
     >
       <div
         className={`flip-card ${isFlipped ? "flipped" : isFlippingBack ? "flip-back" : ""}`}
