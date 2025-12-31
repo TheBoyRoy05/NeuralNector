@@ -105,7 +105,7 @@ const Leaderboard = () => {
                     className="bg-primary/20 text-lg"
                   >
                     <td className="font-beezle">#{entry.rank}</td>
-                    <td className="font-beezle">
+                    <td className="">
                       <form onSubmit={handleSubmit} className="flex gap-2">
                         <input
                           type="text"
