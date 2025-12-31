@@ -13,10 +13,15 @@ const CompletionModal = () => {
     showCompletionModal,
     setShowCompletionModal,
     resetGame,
+    images,
   } = useGame();
 
-  const correctCount = Object.values(reviewResults).filter((r) => r === "correct").length;
-  const totalCount = Object.keys(reviewResults).length;
+  // Calculate recall: proportion of fakes correctly identified
+  const fakeImages = images.filter((img) => !img.is_real);
+  const correctlyIdentifiedFakes = fakeImages.filter(
+    (img) => reviewResults[img.image_id] === "correct"
+  ).length;
+  const recallTotal = fakeImages.length;
   const highScore = highScores[boardSize] || 0;
 
   const formatTime = (seconds: number) => {
@@ -37,9 +42,9 @@ const CompletionModal = () => {
         <p className="font-beezle text-xl mb-4">
           You beat the <span className="font-bold">{getDifficultyName(boardSize)}</span> mode with{" "}
           <span className="font-bold font-sans">
-            {correctCount}/{totalCount}
+            {correctlyIdentifiedFakes}/{recallTotal}
           </span>{" "}
-          correct in <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
+          fakes identified in <span className="font-bold font-sans">{formatTime(elapsedTime)}</span>
         </p>
         <div className="flex flex-col gap-2 mb-4">
           <div className="flex justify-between items-center">
