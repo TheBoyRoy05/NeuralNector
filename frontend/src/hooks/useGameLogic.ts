@@ -77,12 +77,18 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
         return () => clearTimeout(timer);
       } else {
         // Review complete - calculate score and show modal after 500ms
-        const correctCount = Object.values(reviewResults).filter((r) => r === "correct").length;
-        const totalCount = images.length;
+        // Calculate proportion of fakes that were classified properly
+        const fakeImages = images.filter((img) => !img.is_real);
+        const correctlyClassifiedFakes = fakeImages.filter(
+          (img) => reviewResults[img.image_id] === "correct"
+        ).length;
 
         // Score calculation: correctness (0-50) + time bonus (0-50)
         const maxScore = 100;
-        const correctnessScore = (correctCount / totalCount) * maxScore / 2;
+        const correctnessScore =
+          fakeImages.length > 0
+            ? ((correctlyClassifiedFakes / fakeImages.length) * maxScore) / 2
+            : maxScore / 2; // If no fakes, give full correctness score
 
         // Time bonus: faster times get higher bonus (max 50 points)
         const maxTime = { 2: 10, 4: 30, 6: 60, 8: 120 }[boardSize];
@@ -92,7 +98,7 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
         const ratioBaseScore = ratioType === "random" ? 25 : 0;
         const slope = (maxScore - ratioBaseScore) / maxScore;
         const finalScore = (correctnessScore + timeBonus) * slope + ratioBaseScore;
-        
+
         setScore(finalScore);
         setTimeBonus(timeBonus);
         setHighScore(boardSize, finalScore);
@@ -106,7 +112,7 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
   }, [
     isReviewing,
     currentReviewIndex,
-    images.length,
+    images,
     reviewResults,
     elapsedTime,
     boardSize,

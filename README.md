@@ -11,8 +11,8 @@ The game presents you with a grid of flower images - some are real photographs, 
 - **Multiple Difficulty Levels**: Easy (2x2), Normal (4x4), Hard (6x6), and Impossible (8x8)
 - **Two Ratio Modes**: 
   - Equal Ratio: 50/50 split of real and fake flowers
-  - Random Ratio: Variable ratio with 1.33x score multiplier
-- **Dynamic Scoring**: Based on accuracy and completion time
+  - Random Ratio: Variable ratio with bonus scoring
+- **Dynamic Scoring**: Based on how well you identify fake images and completion time
 - **Global Leaderboards**: Compete with players worldwide, filtered by difficulty
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
 
@@ -25,6 +25,24 @@ The game presents you with a grid of flower images - some are real photographs, 
 5. **Submit**: Click "Submit" when you're done
 6. **Review**: Watch as your selections are reviewed one by one
 7. **View Score**: See your final score and submit it to the leaderboard!
+
+## 📊 Scoring System
+
+Your score is calculated based on two factors:
+
+- **Correctness Recall (0-50 points)**: Based on the proportion of fake images you correctly identified
+  - Formula: `(correctly identified fakes / total fakes) × 50`
+  - Perfect identification of all fakes = 50 points
+
+- **Time Bonus (0-50 points)**: Based on how quickly you complete the game
+  - Maximum time limits: Easy (10s), Normal (30s), Hard (60s), Impossible (120s)
+  - Faster completion = higher bonus (up to 50 points)
+
+- **Ratio Multiplier**: 
+  - **Random Ratio**: Applies a multiplier that adds bonus points (up to 25 base points)
+  - **Equal Ratio**: No multiplier, raw score only
+
+Final score = (Correctness + Time Bonus) × Ratio Multiplier + Ratio Base Score
 
 ---
 
