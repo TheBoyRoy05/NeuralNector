@@ -80,19 +80,18 @@ export default function useGameLogic({ images }: UseGameLogicProps) {
         const correctCount = Object.values(reviewResults).filter((r) => r === "correct").length;
         const totalCount = images.length;
 
-        // Score calculation: correctness (0-100) + time bonus (faster = better)
-        // Base score: percentage correct * 100
-        const correctnessScore = (correctCount / totalCount) * 100;
+        // Score calculation: correctness (0-50) + time bonus (0-50)
+        const maxScore = 100;
+        const correctnessScore = (correctCount / totalCount) * maxScore / 2;
 
         // Time bonus: faster times get higher bonus (max 50 points)
-        // Formula: 50 * (1 - min(time/maxTime, 1)) where maxTime is the maximum time for the board size
         const maxTime = { 2: 10, 4: 30, 6: 60, 8: 120 }[boardSize];
-        const timeBonus = 50 * (1 - Math.min(elapsedTime / (maxTime || 30), 1));
+        const timeBonus = (maxScore / 2) * (1 - Math.min(elapsedTime / (maxTime || 30), 1));
 
-        // Ratio multiplier: random gets 1.33x, equal gets 1.0x
-        const ratioMultiplier = ratioType === "random" ? 1.33 : 1.0;
-        const baseScore = correctnessScore + timeBonus;
-        const finalScore = baseScore * ratioMultiplier;
+        // Ratio multiplier
+        const ratioBaseScore = ratioType === "random" ? 25 : 0;
+        const slope = (maxScore - ratioBaseScore) / maxScore;
+        const finalScore = (correctnessScore + timeBonus) * slope + ratioBaseScore;
         
         setScore(finalScore);
         setTimeBonus(timeBonus);
