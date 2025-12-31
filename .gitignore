@@ -34,3 +34,20 @@ __pycache__
 
 # Environment variables
 .env
+
+# Image files
+landscape_imgs
+flowers-102
+
+__pycache__/
+events.*
+
+# Model checkpoints and large files
+*.ckpt
+*.tgz
+*.pth
+*.pt
+*.h5
+*.pb
+GAN/Models/
+checkpoints/
