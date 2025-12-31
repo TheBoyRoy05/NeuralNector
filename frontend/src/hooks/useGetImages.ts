@@ -19,6 +19,9 @@ export default function useGetImages() {
       return;
     }
 
+    // Clear images immediately to prevent showing wrong count during fetch
+    setImages([]);
+
     const fetchImages = async () => {
       fetchingRef = true;
       lastFetchKeyRef = fetchKey;
