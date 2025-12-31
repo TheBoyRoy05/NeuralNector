@@ -30,7 +30,7 @@ const Images = () => {
 
   return (
     <div
-      className="grid gap-4 items-center justify-center"
+      className="grid gap-4 items-center justify-center min-h-[512px]"
       style={{ 
         width: `${gridWidth}px`,
         gridTemplateColumns: `repeat(${columns}, ${imageSize}px)`
