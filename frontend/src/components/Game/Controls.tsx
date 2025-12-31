@@ -84,7 +84,7 @@ const Controls = () => {
         <select
           name="board-size"
           id="board-size"
-          className="select select-outline select-lg w-[225px]"
+          className="select select-outline select-lg w-[200px]"
           value={boardSize}
           onChange={(e) => setBoardSize(Number(e.target.value))}
           disabled={isGameStarted || isReviewing}
@@ -97,13 +97,13 @@ const Controls = () => {
         <select
           name="ratio-type"
           id="ratio-type"
-          className="select select-outline select-lg w-[225px]"
+          className="select select-outline select-lg w-[200px]"
           value={ratioType}
           onChange={(e) => setRatioType(e.target.value as "equal" | "random")}
           disabled={isGameStarted || isReviewing}
         >
           <option value="equal">Equal Ratio</option>
-          <option value="random">Random Ratio (x1.33)</option>
+          <option value="random" title="Bonus points">Random Ratio</option>
         </select>
       </div>
       <div className="flex flex-col md:flex-row items-center justify-around gap-4">
