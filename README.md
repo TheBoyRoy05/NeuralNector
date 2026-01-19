@@ -4,7 +4,7 @@
 
 [Neural Nector](https://neuralnector.com) is an interactive web game that challenges players to identify AI-generated (fake) flowers from real ones. Test your perception skills as you navigate through different difficulty levels, compete on leaderboards, and see if you can spot the difference! [Learn more](https://www.issacroy.com/#/neural-nector).
 
-## 🎮 Game Overview
+## 🎮 Game Overview 
 
 The game presents you with a grid of flower images - some are real photographs, others are AI-generated. Your task is to select all the fake (AI-generated) flowers before time runs out. The game features:
 
@@ -47,6 +47,8 @@ Your score is calculated based on two factors:
 
 Final score = (F1 Score + Time Bonus) × Ratio Multiplier + Ratio Base Score
 
----
+## Samples from Training
+
+<img src='models/GAN/Images/Epochs.png'>
 
 **Can you tell the difference?** Play [NeuralNector](https://neuralnector.com) and find out! 🌸
