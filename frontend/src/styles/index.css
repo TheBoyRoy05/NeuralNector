@@ -86,3 +86,36 @@
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+.glare {
+  height: 1px;
+  background-image: linear-gradient(90deg, #0000 0%, #dbdbdb 50%, #0000 100%);
+}
+
+.frame-bg {
+  position: relative;
+  background-image: linear-gradient(180deg, #222, #181818);
+  overflow: hidden;
+}
+
+.frame-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at top center, var(--gradient-color) 0%, #181818 90%);
+  opacity: var(--opacity, 0);
+  transition: opacity 0.5s ease;
+  z-index: 0;
+}
+
+.frame-bg:hover::before {
+  opacity: var(--opacity, 1);
+}
+
+.frame-bg .frame-content {
+  position: relative;
+  z-index: 2;
+}

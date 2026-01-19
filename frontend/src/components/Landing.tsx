@@ -23,7 +23,7 @@ const Landing = () => {
 
       <div className="flex flex-col-reverse xl:flex-row items-center gap-[calc(8vw-2rem)]">
         <div className="flex flex-col items-center justify-center gap-8">
-          <h2 className="font-regitha fl-text-2xl/4xl text-center">Can you tell the difference?</h2>
+          <h2 className="font-regitha fl-text-2xl/4xl text-center">Can You Tell the Difference?</h2>
           <p className="fl-text-lg/2xl font-beezle text-center ">
             These flowers never grew in a garden... <br /> or did they?
           </p>

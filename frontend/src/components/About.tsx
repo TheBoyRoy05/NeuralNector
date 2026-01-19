@@ -10,7 +10,7 @@ const About = () => {
         <img src={yinyang} alt="Yin Yang" className="max-w-[500px] w-full object-cover" />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center gap-4">
-        <h2 className="font-regitha fl-text-3xl/4xl">How does it work?</h2>
+        <h2 className="font-regitha fl-text-3xl/4xl">How Does it Work?</h2>
         <p className="fl-text-lg/2xl font-beezle text-center">
           The fake flowers are generated using a Generative Adversarial Network (GAN). The model
           uses two components: a generator that creates fake flowers, and a discriminator that

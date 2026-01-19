@@ -1,6 +1,7 @@
 import Footer from "./components/Footer";
 import Game from "./components/Game/Game";
 import About from "./components/About";
+import Samples from "./components/Samples";
 import Landing from "./components/Landing";
 import Navbar from "./components/Navbar";
 import { useThemeHandler } from "./hooks/useThemeHandler";
@@ -14,6 +15,7 @@ function App() {
       <main className="flex flex-col items-center gap-8 flex-1 overflow-auto px-[10vw]">
         <Landing />
         <About />
+        <Samples />
         <Game />
       </main>
       <Footer />

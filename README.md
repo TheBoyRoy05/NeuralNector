@@ -49,6 +49,6 @@ Final score = (F1 Score + Time Bonus) × Ratio Multiplier + Ratio Base Score
 
 ## Samples from Training
 
-<img src='models/GAN/Images/Epochs.png'>
+<img src='frontend/src/assets/images/epochs.png'>
 
 **Can you tell the difference?** Play [NeuralNector](https://neuralnector.com) and find out! 🌸
