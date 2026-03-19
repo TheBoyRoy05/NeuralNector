@@ -42,21 +42,16 @@ export default function useGetImages() {
 
       setRatio(`${numReal}:${numFake}`);
 
-      const allImages: ImageProps[] = [];
-
-      for (const body of [{ count: numReal, real: true }, { count: numFake, real: false }]) {
-        await http({
-          url: "/images",
-          method: "GET",
-          body: body,
-          handleData: (data) => {
-            allImages.push(...(data as ImageProps[]));
-          },
-        });
-      }
-
-      const shuffled = allImages.sort(() => Math.random() - 0.5);
-      setImages(shuffled);
+      await http({
+        url: "/images",
+        method: "GET",
+        body: { count_real: numReal, count_fake: numFake },
+        handleData: (data) => {
+          const allImages = data as ImageProps[];
+          const shuffled = allImages.sort(() => Math.random() - 0.5);
+          setImages(shuffled);
+        },
+      });
       fetchingRef = false;
     };
 
