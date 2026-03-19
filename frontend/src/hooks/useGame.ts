@@ -17,8 +17,10 @@ interface GameState {
   currentReviewIndex: number;
   imageRefreshKey: number; // Increments to trigger image refetch
   images: ImageProps[];
+  imagesLoading: boolean;
   numSelected: number;
   setImages: (images: ImageProps[]) => void;
+  setImagesLoading: (loading: boolean) => void;
   setScore: (score: number) => void;
   setTimeBonus: (timeBonus: number) => void;
   setHighScore: (boardSize: number, score: number) => void;
@@ -51,8 +53,10 @@ export const useGame = create<GameState>((set, get) => {
     currentReviewIndex: 0,
     imageRefreshKey: 0,
     images: [],
+    imagesLoading: false,
     numSelected: 0,
     setImages: (images) => set({ images }),
+    setImagesLoading: (imagesLoading) => set({ imagesLoading }),
     setNumSelected: (num) => set({ numSelected: num }),
     setScore: (score) => set({ score }),
     setTimeBonus: (timeBonus) => set({ timeBonus }),

@@ -11,7 +11,7 @@ export interface ImageProps {
 }
 
 const Images = () => {
-  const { images } = useGetImages();
+  const { images, loading } = useGetImages();
   const { boardSize, isGameStarted, isReviewing, reviewResults, currentReviewIndex } = useGame();
   const { selectedImages, handleImageClick } = useGameLogic({ images });
   const { size: screenWidth } = useResponsive();
@@ -36,6 +36,11 @@ const Images = () => {
         gridTemplateColumns: `repeat(${columns}, ${imageSize}px)`
       }}
     >
+      {loading && (
+        <span className="col-span-full flex justify-center" aria-hidden="true">
+          <span className="loading loading-ring loading-3xl w-24" />
+        </span>
+      )}
       {images.map((image, index) => {
         const isCurrentlyReviewing = isReviewing && currentReviewIndex >= index;
         const reviewResult = isCurrentlyReviewing ? reviewResults[image.image_id] : null;

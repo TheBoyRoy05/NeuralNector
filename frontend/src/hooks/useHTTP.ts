@@ -49,7 +49,6 @@ const useHTTP = () => {
       if (data.error) throw new Error(data.error);
       if (handleData) handleData(data);
       if (handleSuccess) handleSuccess();
-      console.log(data);
 
       return true;
     } catch (error) {

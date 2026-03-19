@@ -9,18 +9,23 @@ let lastFetchKeyRef = "";
 
 export default function useGetImages() {
   const { http } = useHTTP();
-  const { boardSize, ratioType, imageRefreshKey, setRatio, images, setImages } = useGame();
+  const { boardSize, ratioType, imageRefreshKey, setRatio, images, setImages, setImagesLoading } = useGame();
 
   useEffect(() => {
     const fetchKey = `${boardSize}-${ratioType}-${imageRefreshKey}`;
     
-    // Prevent duplicate fetches across all instances
-    if (fetchingRef || lastFetchKeyRef === fetchKey) {
+    // Prevent duplicate fetches - but show loading if a fetch is in progress
+    if (fetchingRef) {
+      setImagesLoading(true);
+      return;
+    }
+    if (lastFetchKeyRef === fetchKey) {
       return;
     }
 
     // Clear images immediately to prevent showing wrong count during fetch
     setImages([]);
+    setImagesLoading(true);
 
     const fetchImages = async () => {
       fetchingRef = true;
@@ -53,11 +58,13 @@ export default function useGetImages() {
         },
       });
       fetchingRef = false;
+      setImagesLoading(false);
     };
 
     fetchImages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [http, boardSize, ratioType, imageRefreshKey]);
 
-  return { images };
+  const imagesLoading = useGame((s) => s.imagesLoading);
+  return { images, loading: imagesLoading };
 };
