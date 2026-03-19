@@ -51,3 +51,16 @@ events.*
 *.pb
 GAN/Models/
 checkpoints/
+
+# LaTeX
+*.log
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.lot
+*.lof
+*.out

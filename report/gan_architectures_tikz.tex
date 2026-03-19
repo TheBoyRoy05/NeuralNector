@@ -1,0 +1,79 @@
+% Each dataset: Generator (left) and Discriminator (right) side by side.
+\begin{figure*}[t]
+\vskip -0.05in
+\centering
+\footnotesize
+\tikzset{
+  ganbox/.style={rectangle, draw=black!70, line width=0.45pt, rounded corners=2pt,
+    inner sep=1.4pt, align=center, font={\fontsize{6.5}{7.6}\selectfont}, text width=1.92cm, minimum height=0.44cm},
+  ganarr/.style={-{Stealth[length=1.25mm]}, semithick, black!55, shorten >=0.4pt, shorten <=0.4pt},
+}
+\begin{adjustbox}{max width=\textwidth, max height=0.88\textheight, center}
+% ---------- MNIST ----------
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+{\small MNIST} \quad {\footnotesize\itshape $28{\times}28$, 1 ch.}\\[0.35em]
+\noindent
+\begin{minipage}[t]{0.49\linewidth}\centering
+\textit{Generator}\\[0.12em]
+\begin{tikzpicture}[node distance=1.45mm, >=Stealth]
+  \node[ganbox] (mg1) {$\mathbf{z}$ batch$\times 100$};
+  \node[ganbox, below=of mg1] (mg2) {Linear $\rightarrow$ reshape\\$64\times 7\times 7$, ReLU};
+  \node[ganbox, below=of mg2] (mg3) {ConvT $64\!\to\!32$, $k{=}4$, $s{=}2$\\$7^2 \!\to\! 14^2$, ReLU};
+  \node[ganbox, below=of mg3] (mg4) {ConvT $32\!\to\!16$, $k{=}4$, $s{=}2$\\$14^2 \!\to\! 28^2$, ReLU};
+  \node[ganbox, below=of mg4] (mg5) {Conv $16\!\to\!1$, $k{=}7$\\\texttt{tanh} $\rightarrow 28^2$};
+  \foreach \a/\b in {mg1/mg2,mg2/mg3,mg3/mg4,mg4/mg5} \draw[ganarr] (\a) -- (\b);
+\end{tikzpicture}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.49\linewidth}\centering
+\textit{Discriminator}\\[0.12em]
+\begin{tikzpicture}[node distance=1.45mm, >=Stealth]
+  \node[ganbox] (md1) {$\mathbf{x}$ $1\times28\times28$};
+  \node[ganbox, below=of md1] (md2) {Conv $1\!\to\!10$, $k{=}5$\\ReLU + max-pool\\$\rightarrow 10{\times}12^2$};
+  \node[ganbox, below=of md2] (md3) {Conv $10\!\to\!20$, $k{=}5$\\Dropout2d + pool + ReLU\\$\rightarrow 20{\times}4^2$};
+  \node[ganbox, below=of md3] (md4) {FC $320\!\to\!50$\\ReLU + dropout};
+  \node[ganbox, below=of md4] (md5) {FC $50\!\to\!1$ + sigmoid};
+  \foreach \a/\b in {md1/md2,md2/md3,md3/md4,md4/md5} \draw[ganarr] (\a) -- (\b);
+\end{tikzpicture}
+\end{minipage}
+\end{minipage}%
+\hfill
+% ---------- Flowers ----------
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+{\small Flowers 102} \quad {\footnotesize\itshape $64{\times}64$, 3 ch.}\\[0.35em]
+\noindent
+\begin{minipage}[t]{0.49\linewidth}\centering
+\textit{Generator}\\[0.12em]
+\begin{tikzpicture}[node distance=1.35mm, >=Stealth]
+  \node[ganbox] (fg1) {$\mathbf{z}$ batch$\times 100$};
+  \node[ganbox, below=of fg1] (fg2) {Linear $\rightarrow$ reshape\\$512\times 4\times 4$, ReLU};
+  \node[ganbox, below=of fg2] (fg3) {ConvT $512\!\to\!256$, $k{=}4$, $s{=}2$\\+ BN + ReLU $\rightarrow 8^2$};
+  \node[ganbox, below=of fg3] (fg4) {ConvT $256\!\to\!128$, $s{=}2$\\+ BN + ReLU $\rightarrow 16^2$};
+  \node[ganbox, below=of fg4] (fg5) {ConvT $128\!\to\!64$, $s{=}2$\\+ BN + ReLU $\rightarrow 32^2$};
+  \node[ganbox, below=of fg5] (fg6) {ConvT $64\!\to\!32$, $s{=}2$\\+ BN + ReLU $\rightarrow 64^2$};
+  \node[ganbox, below=of fg6] (fg7) {Conv $32\!\to\!3$, $k{=}3$, pad 1\\\texttt{tanh}};
+  \foreach \a/\b in {fg1/fg2,fg2/fg3,fg3/fg4,fg4/fg5,fg5/fg6,fg6/fg7} \draw[ganarr] (\a) -- (\b);
+\end{tikzpicture}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.49\linewidth}\centering
+\textit{Discriminator}\\[0.12em]
+\begin{tikzpicture}[node distance=1.45mm, >=Stealth]
+  \node[ganbox] (fd1) {$\mathbf{x}$ $3\times64\times64$};
+  \node[ganbox, below=of fd1] (fd2) {Conv $3\!\to\!64$, $k{=}4$, $s{=}2$\\LeakyReLU (no BN)\\$\rightarrow 32^2$};
+  \node[ganbox, below=of fd2] (fd3) {Conv $64\!\to\!128$, $s{=}2$\\+ BN + LeakyReLU $\rightarrow 16^2$};
+  \node[ganbox, below=of fd3] (fd4) {Conv $128\!\to\!256$, $s{=}2$\\+ BN + LeakyReLU $\rightarrow 8^2$};
+  \node[ganbox, below=of fd4] (fd5) {Conv $256\!\to\!512$, $s{=}2$\\+ BN + LeakyReLU $\rightarrow 4^2$};
+  \node[ganbox, below=of fd5] (fd6) {Flatten + FC\\$4{\cdot}4{\cdot}512 \!\to\! 1$ + sigmoid};
+  \foreach \a/\b in {fd1/fd2,fd2/fd3,fd3/fd4,fd4/fd5,fd5/fd6} \draw[ganarr] (\a) -- (\b);
+\end{tikzpicture}
+\end{minipage}
+\end{minipage}
+\end{adjustbox}
+\vskip 0.08in
+\caption{Neural architectures (\texttt{models.py}). \emph{Left:} MNIST---$G$ and $D$ side by side; shallow $D$ (pooling, dropout, no BN); $G$ without BN. \emph{Right:} Flowers---DCGAN-style $D$ (BN except first conv, LeakyReLU) and $G$ (transposed convs + BN + ReLU, \texttt{tanh}).}
+\label{fig:gan-arch}
+\vskip -0.1in
+\end{figure*}
