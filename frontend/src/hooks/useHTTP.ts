@@ -18,12 +18,19 @@ const useHTTP = () => {
     setLoading(true);
 
     try {
-      // Use environment variable or default to relative path (same origin)
-      const apiUrl = import.meta.env.VITE_API_URL || "/api/v1";
-      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const apiUrl = supabaseUrl ? `${supabaseUrl}/functions/v1` : "/api/v1";
+      const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
       const config: AxiosRequestConfig = {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey && {
+            Authorization: `Bearer ${apiKey}`,
+            apikey: apiKey,
+          }),
+        },
         url: `${apiUrl}${url}`,
       };
 
