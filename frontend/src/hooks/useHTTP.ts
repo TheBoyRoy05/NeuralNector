@@ -20,15 +20,15 @@ const useHTTP = () => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const apiUrl = supabaseUrl ? `${supabaseUrl}/functions/v1` : "/api/v1";
-      const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
       const config: AxiosRequestConfig = {
         method,
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey && {
-            Authorization: `Bearer ${apiKey}`,
-            apikey: apiKey,
+          ...(anonKey && {
+            Authorization: `Bearer ${anonKey}`,
+            apikey: anonKey,
           }),
         },
         url: `${apiUrl}${url}`,
@@ -49,6 +49,7 @@ const useHTTP = () => {
       if (data.error) throw new Error(data.error);
       if (handleData) handleData(data);
       if (handleSuccess) handleSuccess();
+      console.log(data);
 
       return true;
     } catch (error) {

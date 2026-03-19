@@ -28,7 +28,7 @@ jobs:
         run: supabase db push
 
       - name: Deploy Edge Functions
-        run: supabase functions deploy --project-ref $SUPABASE_PROJECT_ID
+        run: supabase functions deploy --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt
 
       - uses: actions/setup-node@v4
         with:
