@@ -43,7 +43,7 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
 
       - name: Add CNAME for neuralnector.com
-        run: echo 'www.neuralnector.com' > frontend/dist/CNAME
+        run: echo 'neuralnector.com' > frontend/dist/CNAME
 
       - uses: peaceiris/actions-gh-pages@v4
         with:
