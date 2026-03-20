@@ -35,7 +35,7 @@ const Landing = () => {
               Play
             </button>
             <a
-              href="https://www.issacroy.com/#/neural-nector"
+              href="https://www.issacroy.com/neural-nector"
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-outline btn-lg md:w-36 md:order-first"
@@ -53,7 +53,7 @@ const Landing = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 font-beezle text-4xl hidden md:flex">
+        <div className="flex-col md:flex-row items-center justify-center gap-4 font-beezle text-4xl hidden md:flex">
           <img
             src={realFlower}
             alt="Real Flower"

@@ -22,7 +22,7 @@ const About = () => {
           flowers.
         </p>
         <a
-          href="https://www.issacroy.com/#/neural-nector"
+          href="https://www.issacroy.com/neural-nector"
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-outline btn-lg md:btn-xl mt-6"

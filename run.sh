@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+cd "$(dirname "$0")"
 case "$1" in
   -frontend|-f)
     echo "Starting frontend..."

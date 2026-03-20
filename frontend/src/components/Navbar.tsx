@@ -26,7 +26,7 @@ const Navbar = () => {
         }`}
       >
         <a
-          href="https://www.issacroy.com/#/neural-nector"
+          href="https://www.issacroy.com/neural-nector"
           target="_blank"
           rel="noopener noreferrer"
           title="Documentation"
@@ -35,7 +35,16 @@ const Navbar = () => {
           Learn More
         </a>
         <a
-          href="https://issacroy.com/#/"
+          href="https://www.neuralnector.com/report.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Documentation"
+          className="link-hover"
+        >
+          Report
+        </a>
+        <a
+          href="https://issacroy.com/"
           target="_blank"
           rel="noopener noreferrer"
           title="Documentation"
