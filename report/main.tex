@@ -129,7 +129,7 @@ A \emph{discriminator} $D$ is a classifier trained to distinguish real data from
 Training alternates between updating $D$ to assign high probability to real $x$ and low probability to $G(z)$, and updating $G$ to produce samples that fool $D$.
 \cref{fig:gan-arch} sketches the adversarial setup and layer structure used in this work.
 
-The original minimax objective \cite{GANs} is
+The original minimax objective \cite{GANs} is defined as follows:
 \begin{equation}
 \label{eq:gan-minimax}
 \min_G \max_D \;
@@ -149,7 +149,7 @@ These issues motivated a large body of follow-on work (e.g., improved optimizati
 We began with the MNIST dataset and a compact convolutional architecture in \texttt{GAN\_MNIST.ipynb}: a shallow discriminator with convolutions, pooling, and fully connected layers, and a generator built from a linear projection to a small spatial grid followed by transposed convolutions to produce $28\times 28$ grayscale digits.
 We then moved to the Oxford Flowers~102 dataset \cite{Nilsback08}, which is substantially harder: natural color images at higher resolution require a deeper DCGAN-style design with more layers and $64\times 64$ RGB outputs, developed in \texttt{GAN\_pytorch.ipynb}.
 On Flowers we observed vanishing gradients, mode collapse, and a discriminator that reached near-optimality too early, suppressing learning in $G$.
-We mitigated these effects with practices such as label smoothing, asymmetric learning rates for $G$ and $D$, and selective updates that skip or repeat discriminator steps when its loss indicates it is overpowering the generator; details appear in \cref{sec:methods}.
+We mitigated these effects with practices such as batch normalization in the deeper networks, label smoothing, asymmetric learning rates for $G$ and $D$, and selective updates that skip or repeat discriminator steps when its loss indicates it is overpowering the generator; details appear in \cref{sec:methods}.
 The resulting generator powers \underline{\href{https://neuralnector.com}{NeuralNector}}, an interactive game in which human players act as discriminators on grids of real vs.\ GAN-generated flowers.
 
 \begin{figure}[t]
@@ -195,12 +195,12 @@ The same conceptual GAN objective (\cref{eq:gan-minimax}) is used throughout; th
 
 \paragraph{MNIST ($28\times 28$, 1 channel).}
 The discriminator is a small CNN: two convolutional layers with $5\times 5$ kernels, max pooling, dropout on the second conv block, and two fully connected layers ending in a single logit passed through a sigmoid. This shallow design is sufficient for aligned digits and trains quickly while limiting overfitting on a simple domain.
-The generator maps Gaussian noise of dimension $z\in\mathbb{R}^{100}$ through a linear layer to a $7\times 7\times 64$ tensor, applies two transposed convolutions to reach spatial size $28\times 28$, and a final convolution with \texttt{tanh}. Batch normalization is omitted in this path to keep the starter model minimal and to avoid small-batch noise on early experiments; ReLU activations are used in the generator, and ReLU with pooling in the discriminator.
+The generator maps Gaussian noise of dimension $z\in\mathbb{R}^{100}$ through a linear layer to a $7\times 7\times 64$ tensor, applies two transposed convolutions to reach spatial size $28\times 28$, and a final convolution with \texttt{tanh}. ReLU activations are used in the generator, and ReLU with pooling in the discriminator.
 
 \paragraph{Flowers ($64\times 64$, 3 channels).}
 Natural color flowers exhibit richer texture and spatial structure, so both networks follow a DCGAN-style deep convolutional layout with strided convolutions in $D$ and transposed convolutions in $G$.
 The discriminator stacks four strided $4\times 4$ convolutions with channel widths $64\!\to\!128\!\to\!256\!\to\!512$, batch normalization on all but the first layer (a common practice so the input statistics are not whitewashed), LeakyReLU ($0.2$) activations, and a linear layer to one output with sigmoid. BN and LeakyReLU help stabilize gradients when $D$ must discriminate fine-grained natural detail; the first conv remains unnormalized so the network can learn low-level edge statistics directly from pixels.
-The generator projects $z\in\mathbb{R}^{100}$ to $4\times 4\times 512$, then upsamples through four transposed convolution stages ($512\!\to\!256\!\to\!128\!\to\!64\!\to\!32$ feature maps) each followed by batch normalization and ReLU, and a final $3\times 3$ convolution to three channels with \texttt{tanh}. BN in $G$ reduces internal covariate shift across upsampling stages and tends to improve training stability when many layers are stacked.
+The generator projects $z\in\mathbb{R}^{100}$ to $4\times 4\times 512$, then upsamples through four transposed convolution stages ($512\!\to\!256\!\to\!128\!\to\!64\!\to\!32$ feature maps) each followed by BN and ReLU, and a final $3\times 3$ convolution to three channels with \texttt{tanh}. BN in $G$ reduces internal covariate shift across upsampling stages and tends to improve stability when many layers are stacked.
 
 Convolutional, transposed-convolutional, and linear weights are initialized from $\mathcal{N}(0, 0.02^2)$ with zero bias initialization, following common GAN practice.
 
@@ -211,14 +211,14 @@ The generator is trained to fool $D$, using BCE against targets of ``real'' ($1$
 
 \subsection{Optimization and adaptive balancing}
 
-Both networks use Adam with betas $(0.5, 0.999)$. The base learning rate is $2\times 10^{-4}$ for the hyperparameter \texttt{lr}, but asymmetric effective rates are applied: the generator uses \texttt{lr}$_{\!G}=2\times$\texttt{lr} ($4\times 10^{-4}$) and the discriminator \texttt{lr}$_{\!D}=\frac{1}{2}\times$\texttt{lr} ($1\times 10^{-4}$). The intent is to slow $D$ and accelerate $G$ so the discriminator does not reach optimality too quickly---a regime in which $G$ receives little useful gradient and training stalls.
+Both networks use Adam with betas $(0.5, 0.999)$. The base learning rate is $2\times 10^{-4}$ for the hyperparameter \texttt{lr}, but asymmetric effective rates are applied: the generator uses \texttt{lr}$_{\!G}=2\times$\texttt{lr} ($4\times 10^{-4}$) and the discriminator \texttt{lr}$_{\!D}=\frac{1}{2}\times$\texttt{lr} ($1\times 10^{-4}$). The intent is to slow $D$ and accelerate $G$ so the discriminator does not reach optimality too quickly which is a regime in which $G$ receives little useful gradient and training stalls.
 
 Additional adaptive scheduling is implemented in the training step: if the averaged discriminator loss $d_{\mathrm{loss}}$ falls below $0.6$, the discriminator update for that step is skipped ($D$ is already winning too easily; updating it further would harm $G$). If $d_{\mathrm{loss}}$ falls below $0.4$, the generator is updated twice in one step (second draw of $z$) so $G$ can recover when $D$ is very strong.
 Together with label smoothing and asymmetric learning rates, this implements a simple heuristic schedule that pauses or emphasizes updates based on the relative strength of $D$ and $G$, without changing the underlying minimax game.
 
 Typical batch sizes are $128$ for early MNIST experiments in \texttt{GAN\_MNIST.ipynb} and $64$ for Flowers in \texttt{GAN\_pytorch.ipynb}, subject to GPU memory.
 
-\subsection{Selecting fakes for NeuralNector}
+\subsection{Selecting fakes for \underline{\href{https://neuralnector.com}{NeuralNector}}}
 
 After training, synthetic flowers for the web game are produced by sampling the generator and ranking candidates by the discriminator's output, interpreted as the model's estimated probability that an image is real. A large pool of candidates is generated (and optionally merged with previously generated images), all are scored under a fixed checkpoint, and the top $500$ by discriminator score are written to the game's fake image archive. This heuristic filters out egregious failures and mode-collapsed samples that $D$ confidently rejects, improving the quality of the human-facing ``fake'' set at the cost of biasing the pool toward samples the current $D$ finds plausible. The same trained \texttt{gan\_flowers\_final.ckpt} checkpoint is loaded in production for inference.
 
@@ -253,15 +253,45 @@ Output activation & \texttt{tanh} on $G$, sigmoid on $D$ \\
 \section{Experiments}
 \label{sec:experiments}
 
-We report a \emph{comparative} study using the same PyTorch Lightning training loop as in \cref{sec:methods}, with budgets chosen to keep total compute modest (about eleven minutes of GPU time on an NVIDIA A100 in our Colab run, summing eight configurations). These runs are \emph{not} intended to match the long Flowers training used for deployment (thousands of epochs in \texttt{GAN\_pytorch.ipynb}); instead they isolate how individual stabilizers affect optimization trajectories over a fixed short horizon. Unless noted, hyperparameters match \cref{tab:hparams}. Recorded quantities are the generator and discriminator losses logged at the end of each epoch (BCE-style objectives as implemented in the notebooks).
+We report two complementary evaluations: (i) a \emph{metrics-driven} Flowers~102 study reporting Fr\'echet Inception Distance (FID) \cite{Heusel2017GANs}, Kernel Inception Distance (KID), and Inception Score (IS) \cite{ImprovedGANs} via the \texttt{torch-fidelity} library on held-out test reals, and (ii) a lightweight MNIST ablation focused on optimization behavior (BCE losses only). The Flowers protocol is implemented in \texttt{GAN\_experiments.ipynb}: five DCGAN runs of $150$ epochs at batch size $64$ ($\approx 4.8\times 10^3$ optimizer steps per run), targeting roughly one hour of GPU time on a typical Colab instance, which is still far shorter than the multi-thousand-epoch production training in \texttt{GAN\_pytorch.ipynb}. Hyperparameters follow \cref{tab:hparams} unless an ablation overrides them. All Flowers metrics use $N=2048$ generated samples matched against the first $N$ images of the official \emph{test} split (deterministic resize/center crop to $64\times 64$, no augmentation), so training never sees the reference set. FID/KID/IS rely on Inception-v3 features and are most reliable as \emph{relative} comparisons across rows in \cref{tab:flowers-fid}; at $64\times 64$ and with a single seed they should not be read as absolute benchmarks.
+
+\subsection{Flowers: FID, KID, and Inception score}
+
+\cref{tab:flowers-fid} reports five runs from a single Colab execution (NVIDIA A100-40GB; $\approx 57$ minutes wall time summing training and metric computation). Configurations are \texttt{FL1\_baseline} (default stabilizers and augmentation), \texttt{FL2\_no\_aug}, \texttt{FL3\_always\_train\_D} (no adaptive skipping of $D$), \texttt{FL4\_symmetric\_lr} ($\mathrm{lr}_G=\mathrm{lr}_D$), and \texttt{FL5\_no\_label\_smooth}. We log BCE-style $L_G$, $L_D$, and batch $d_{\mathrm{acc}}$ (fraction of reals above $0.5$ and fakes below $0.5$).
+
+By FID and KID, \texttt{FL4\_symmetric\_lr} is strongest on this seed (FID $211$, KID $0.180$), with the highest IS as well---noting that IS is less directly aligned with natural flowers than with ImageNet-like class structure. \texttt{FL2\_no\_aug} is weakest (FID $308$, IS $1.75$), supporting the use of augmentation for this small-data regime. \texttt{FL5\_no\_label\_smooth} improves over \texttt{FL1} on FID/KID despite similar late-epoch losses, while \texttt{FL3\_always\_train\_D} lands between \texttt{FL1} and \texttt{FL2} on FID without the catastrophic MNIST loss split seen when $D$ is always updated on digits (\cref{tab:mnist-ablations}); Flowers optimization appears less brittle to that ablation on this budget. Overall, metrics disagree with a naive reading of BCE alone (e.g., \texttt{FL4} has higher $L_G$ than \texttt{FL1} but better FID), underscoring the value of distribution metrics alongside losses.
+
+\begin{table*}[t]
+\caption{Flowers~102 generative metrics ($150$ epochs, batch $64$, $N=2048$ fakes vs.\ test reals, one seed). Lower FID/KID is better. $d_{\mathrm{acc}}$: final epoch; $\bar{d}_{\mathrm{acc}}^{(3)}$: mean over last three epochs. Source: \texttt{GAN\_experiments.ipynb} / \texttt{EXPERIMENTS\_JSON}.}
+\label{tab:flowers-fid}
+\vskip 0.1in
+\begin{center}
+\begin{small}
+\begin{sc}
+\begin{tabular}{lccccccc}
+\toprule
+Run & FID$\downarrow$ & KID & IS & $L_G$ & $L_D$ & $d_{\mathrm{acc}}$ & $\bar{d}_{\mathrm{acc}}^{(3)}$ \\
+\midrule
+\texttt{FL1\_baseline} & $279.1$ & $0.272$ & $2.23$ & $0.778$ & $0.704$ & $0.505$ & $0.511$ \\
+\texttt{FL2\_no\_aug} & $307.8$ & $0.331$ & $1.75$ & $1.079$ & $0.643$ & $0.662$ & $0.672$ \\
+\texttt{FL3\_always\_train\_D} & $302.2$ & $0.301$ & $2.08$ & $0.753$ & $0.705$ & $0.499$ & $0.510$ \\
+\texttt{FL4\_symmetric\_lr} & $211.0$ & $0.180$ & $3.43$ & $1.180$ & $0.643$ & $0.660$ & $0.667$ \\
+\texttt{FL5\_no\_label\_smooth} & $239.9$ & $0.214$ & $2.34$ & $0.770$ & $0.706$ & $0.489$ & $0.492$ \\
+\bottomrule
+\end{tabular}
+\end{sc}
+\end{small}
+\end{center}
+\vskip -0.1in
+\end{table*}
 
 \subsection{MNIST training ablations}
 
-On MNIST we train for $12$ epochs at batch size $128$ with the $28\times 28$ architecture from \cref{sec:methods}. \cref{tab:mnist-ablations} summarizes final losses and means over the last three epochs. Several ablations leave both losses in a similar band (roughly $L_G\approx 0.59$--$0.70$, $L_D\approx 0.58$--$0.59$): removing label smoothing (\texttt{M2}), using symmetric learning rates for $G$ and $D$ (\texttt{M3}), reducing the latent dimension to $50$ (\texttt{M5}), and raising Adam's $\beta_1$ to $0.9$ (\texttt{M6}). These differences are modest on this budget and should be interpreted cautiously---GAN losses need not correlate monotonically with sample quality.
+On MNIST we train for $12$ epochs at batch size $128$ with the $28\times 28$ architecture from \cref{sec:methods}. \cref{tab:mnist-ablations} summarizes final losses and means over the last three epochs. Several ablations leave both losses in a similar band (roughly $L_G\approx 0.59$--$0.70$, $L_D\approx 0.58$--$0.59$): removing label smoothing (\texttt{M2}), using symmetric learning rates for $G$ and $D$ (\texttt{M3}), reducing the latent dimension to $50$ (\texttt{M5}), and raising Adam's $\beta_1$ to $0.9$ (\texttt{M6}). These differences are modest on this budget and should be interpreted cautiously because GAN losses need not correlate monotonically with sample quality.
 
 The clearest signal is \texttt{M4\_always\_train\_D}, which disables the adaptive rule that skips discriminator updates when $d_{\mathrm{loss}}<0.6$ (implemented as a skip threshold of $-1$). Here the discriminator loss falls to about $0.34$ while the generator loss climbs to about $2.26$, with a monotonic upward trend in $L_G$ after the first epoch. This pattern is consistent with discriminator dominance: $D$ becomes too confident too quickly, which weakens the learning signal for $G$ under the non-saturating objective. The default schedule (\texttt{M1\_baseline}), which can pause $D$, avoids this failure mode on the same epoch budget. Together, these results support the narrative in the introduction: the heuristic balancing of $G$ and $D$ updates is not merely cosmetic; when removed, optimization behavior changes sharply even on a simple dataset.
 
-Qualitatively, we inspected $8\times 8$ sample grids exported for each run (files \texttt{M1\_baseline.png}--\texttt{M6\_beta1\_0.9.png} under \texttt{experiment\_outputs/experiment\_grids/} in the accompanying notebook). The grids should be compared with the usual caveat that short-run MNIST GANs may already produce recognizable digits across settings; the quantitative table is most useful for relative optimization behavior, especially the \texttt{M4} contrast.
+For a qualitative view of the flower generator used in deployment after long training, see \cref{fig:final-flowers-grid}.
 
 \begin{table}[t]
 \caption{MNIST ablations ($12$ epochs, batch $128$). $L_G,L_D$: losses at the final epoch; $\bar{L}^{(3)}$: mean over the last three epochs. Wall time is per run on one GPU.}
@@ -288,43 +318,28 @@ Run & $L_G$ & $L_D$ & $\bar{L}_G^{(3)}$ & $\bar{L}_D^{(3)}$ & s \\
 \vskip -0.1in
 \end{table}
 
-\subsection{Flowers: data augmentation}
-
-On Flowers~102 we compare $10$ epochs at batch size $64$ with the $64\times 64$ DCGAN-style architecture, holding optimization hyperparameters fixed. \cref{tab:flowers-aug} contrasts the default recipe with augmentation enabled (\texttt{F1\_flowers\_baseline}) against the same setup with augmentation disabled (\texttt{F2\_flowers\_no\_aug}). On this short horizon, augmentation yields a lower final generator loss ($1.17$ vs.\ $1.43$) and a substantially lower mean generator loss over the last three epochs ($1.16$ vs.\ $2.60$), while discriminator losses remain in a similar range ($\approx 0.65$--$0.67$ at the end). The loss trace for \texttt{F2} is also more volatile (several mid-training spikes in $L_G$), which is consistent with reduced diversity of training views when only deterministic resizing/cropping is used.
-
-As with MNIST, these numbers are proxies for optimization dynamics rather than a full perceptual evaluation; the main Flowers model in NeuralNector is trained far longer. Augmentation is retained in the default pipeline as a practical stabilizer for the natural-image regime.
-
-\begin{table}[t]
-\caption{Flowers~102 comparison ($10$ epochs, batch $64$). Aug.: random augmentation on vs.\ off. Notation as in \cref{tab:mnist-ablations}.}
-\label{tab:flowers-aug}
-\vskip 0.1in
-\begin{center}
-\begin{small}
-\begin{sc}
-\begin{tabular}{lccccc}
-\toprule
-Run & Aug. & $L_G$ & $L_D$ & $\bar{L}_G^{(3)}$ & $\bar{L}_D^{(3)}$ \\
-\midrule
-\texttt{baseline} & yes & $1.168$ & $0.652$ & $1.160$ & $0.664$ \\
-\texttt{no\_aug} & no & $1.428$ & $0.667$ & $2.600$ & $0.740$ \\
-\bottomrule
-\end{tabular}
-\end{sc}
-\end{small}
-\end{center}
-\vskip -0.1in
-\end{table}
-
 \subsection{Limitations}
 
-The study uses a single seed, does not report Inception score or FID, and relies on loss curves and informal grid inspection. Extending the same protocol with multiple seeds, longer budgets, and standard generative metrics would strengthen claims about sample quality; the present results are best read as evidence about \emph{optimization stability} and the role of specific heuristics under controlled ablations.
+The Flowers metrics use a \emph{single} random seed, $N=2048$ samples per side, and $64\times 64$ inputs, so FID/KID/IS have non-trivial variance; we use them for \emph{relative} ranking across ablations in \cref{tab:flowers-fid}. The MNIST block remains loss-only. Neither study replaces a full multi-seed sweep or human evaluation at scale.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-We implemented DCGAN-style adversarial training for MNIST and Oxford Flowers~102, scaling architecture and data pipeline with dataset difficulty, and documented practical failure modes (discriminator dominance, mode collapse) familiar from the GAN literature. Short-budget ablations corroborate that adaptive balancing of $G$ and $D$ updates matters even on MNIST (\cref{tab:mnist-ablations}), and that data augmentation tends to smooth Flowers optimization on a matched epoch budget (\cref{tab:flowers-aug}). The trained flower generator is deployed in NeuralNector, where human players discriminate real from synthetic images selected in part by discriminator scores.
+\begin{figure}[t]
+\vskip 0.1in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{images/flowers_3000.png}}
+\caption{Qualitative samples from the production flower generator (baseline recipe, $3000$ epochs).}
+\label{fig:final-flowers-grid}
+\end{center}
+\vskip -0.4in
+\end{figure}
 
-Future work could add systematic evaluation (e.g., FID), sweep learning rates and thresholds more densely, and explore alternative objectives or regularizers while preserving the game's latency and data-pipeline constraints.
+We implemented DCGAN-style adversarial training for MNIST and Oxford Flowers~102, scaling architecture and data pipeline with dataset difficulty, and documented practical failure modes (discriminator dominance, mode collapse) familiar from the GAN literature. MNIST ablations show that adaptive balancing of $G$ and $D$ updates can matter even when BCE losses look similar (\cref{tab:mnist-ablations}). On Flowers, \cref{tab:flowers-fid} shows that symmetric learning rates achieved the best FID/KID in our short Colab study, while removing augmentation hurt all reported metrics; we retain the default asymmetric recipe for deployment but treat these results as motivation for future hyperparameter search (\texttt{GAN\_experiments.ipynb}). The trained flower generator is deployed in \underline{\href{https://neuralnector.com}{NeuralNector}}, where human players discriminate real from synthetic images selected in part by discriminator scores.
+
+The live game uses the current \emph{baseline} model (\cref{tab:hparams}) trained for $3000$ epochs over approximately $4$ GPU-hours in \texttt{GAN\_pytorch.ipynb}. With the same $N=2048$ FID setup as \cref{tab:flowers-fid} (generated vs.\ held-out test reals), that checkpoint achieves FID $50.3$, far below the $150$-epoch ablations (best short run: FID $\approx 211$ for \texttt{FL4\_symmetric\_lr}). The gap underscores how much of the perceptual gain comes from extended optimization rather than from the controlled one-hour experiment alone; \cref{fig:final-flowers-grid} illustrates the resulting samples.
+
+Future work could add multi-seed FID confidence intervals, sweep learning rates and thresholds more densely, and explore alternative objectives or regularizers while preserving the game's latency and data-pipeline constraints.
 
 
 % In the unusual situation where you want a paper to appear in the
