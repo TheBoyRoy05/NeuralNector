@@ -118,7 +118,7 @@
 \end{figure}
 
 \begin{abstract}
-This work trains DCGAN-style generative adversarial networks on MNIST and Oxford Flowers~102, progressing from a compact architecture for $28\times 28$ digits to a deeper convolutional generator and discriminator for $64\times 64$ RGB flower images. The resulting flower generator is deployed in \underline{\href{https://neuralnector.com}{NeuralNector}}, an interactive game in which human players act as the discriminator on grids of real versus synthetic images. Training is discussed in light of practical difficulties including discriminator dominance, vanishing gradients, and mode collapse, together with stabilizing modifications to the optimization procedure.
+This work trains DCGAN-style generative adversarial networks on MNIST and Oxford Flowers~102, progressing from a compact architecture for $28\times 28$ digits to a deeper convolutional generator and discriminator for $64\times 64$ RGB flower images. The resulting flower generator is deployed in \underline{\href{https://neuralnector.issacroy.com}{NeuralNector}}, an interactive game in which human players act as the discriminator on grids of real versus synthetic images. Training is discussed in light of practical difficulties including discriminator dominance, vanishing gradients, and mode collapse, together with stabilizing modifications to the optimization procedure.
 \end{abstract}
 
 \section{Introduction}
@@ -150,7 +150,7 @@ We began with the MNIST dataset and a compact convolutional architecture in \tex
 We then moved to the Oxford Flowers~102 dataset \cite{Nilsback08}, which is substantially harder: natural color images at higher resolution require a deeper DCGAN-style design with more layers and $64\times 64$ RGB outputs, developed in \texttt{GAN\_pytorch.ipynb}.
 On Flowers we observed vanishing gradients, mode collapse, and a discriminator that reached near-optimality too early, suppressing learning in $G$.
 We mitigated these effects with practices such as batch normalization in the deeper networks, label smoothing, asymmetric learning rates for $G$ and $D$, and selective updates that skip or repeat discriminator steps when its loss indicates it is overpowering the generator; details appear in \cref{sec:methods}.
-The resulting generator powers \underline{\href{https://neuralnector.com}{NeuralNector}}, an interactive game in which human players act as discriminators on grids of real vs.\ GAN-generated flowers.
+The resulting generator powers \underline{\href{https://neuralnector.issacroy.com}{NeuralNector}}, an interactive game in which human players act as discriminators on grids of real vs.\ GAN-generated flowers.
 
 \begin{figure}[t]
 \vskip 0.1in
@@ -218,7 +218,7 @@ Together with label smoothing and asymmetric learning rates, this implements a s
 
 Typical batch sizes are $128$ for early MNIST experiments in \texttt{GAN\_MNIST.ipynb} and $64$ for Flowers in \texttt{GAN\_pytorch.ipynb}, subject to GPU memory.
 
-\subsection{Selecting fakes for \underline{\href{https://neuralnector.com}{NeuralNector}}}
+\subsection{Selecting fakes for \underline{\href{https://neuralnector.issacroy.com}{NeuralNector}}}
 
 After training, synthetic flowers for the web game are produced by sampling the generator and ranking candidates by the discriminator's output, interpreted as the model's estimated probability that an image is real. A large pool of candidates is generated (and optionally merged with previously generated images), all are scored under a fixed checkpoint, and the top $500$ by discriminator score are written to the game's fake image archive. This heuristic filters out egregious failures and mode-collapsed samples that $D$ confidently rejects, improving the quality of the human-facing ``fake'' set at the cost of biasing the pool toward samples the current $D$ finds plausible. The same trained \texttt{gan\_flowers\_final.ckpt} checkpoint is loaded in production for inference.
 
@@ -339,7 +339,7 @@ The Flowers metrics use a \emph{single} random seed, $N=2048$ samples per side, 
 
 We implemented DCGAN-style adversarial training for MNIST and Oxford Flowers~102, scaling architecture and data pipeline with dataset difficulty, and documented practical failure modes (discriminator dominance, mode collapse, vanishing gradients) familiar from the GAN literature. \cref{tab:flowers-fid} shows that the baseline was around the median for many metrics, while symmetric learning rates achieved the best FID/KID over $150$ epochs, and removing augmentation hurt all reported metrics.
 
-The deployed game uses the \emph{asymmetric} baseline in \cref{tab:hparams}, trained $3000$ epochs ($\approx 4$ GPU-hours on an NVIDIA A100-40GB, \texttt{GAN\_pytorch.ipynb}). With the same $N=2048$ FID protocol as \cref{tab:flowers-fid} (generated vs.\ held-out test reals), that checkpoint reaches FID $50.3$, far below the $150$-epoch runs (best: $\approx 211$ for \texttt{FL4\_symmetric\_lr}), so most perceptual gain comes from long optimization. \cref{fig:final-flowers-grid} shows typical samples. We still prefer this recipe over the short-run winner because it was validated at long horizon and reflects the original goal of slowing $D$ early. The generator powers \underline{\href{https://neuralnector.com}{NeuralNector}}, where human players discriminate real from synthetic images ranked in part by discriminator scores.
+The deployed game uses the \emph{asymmetric} baseline in \cref{tab:hparams}, trained $3000$ epochs ($\approx 4$ GPU-hours on an NVIDIA A100-40GB, \texttt{GAN\_pytorch.ipynb}). With the same $N=2048$ FID protocol as \cref{tab:flowers-fid} (generated vs.\ held-out test reals), that checkpoint reaches FID $50.3$, far below the $150$-epoch runs (best: $\approx 211$ for \texttt{FL4\_symmetric\_lr}), so most perceptual gain comes from long optimization. \cref{fig:final-flowers-grid} shows typical samples. We still prefer this recipe over the short-run winner because it was validated at long horizon and reflects the original goal of slowing $D$ early. The generator powers \underline{\href{https://neuralnector.issacroy.com}{NeuralNector}}, where human players discriminate real from synthetic images ranked in part by discriminator scores.
 
 Future work could add multi-seed FID confidence intervals, sweep learning rates and thresholds more densely, and explore alternative objectives or regularizers while preserving the game's latency and data-pipeline constraints.
 
@@ -349,7 +349,7 @@ Future work could add multi-seed FID confidence intervals, sweep learning rates 
 This project goes beyond training a standard benchmark in isolation in three ways: 
 
 \begin{enumerate}
-\item \textbf{Application:} a deployed web game (\href{https://neuralnector.com}{NeuralNector}) where humans act as the discriminator on mixed real and GAN-generated flowers, which requires a data and inference pipeline beyond notebook training.
+\item \textbf{Application:} a deployed web game (\href{https://neuralnector.issacroy.com}{NeuralNector}) where humans act as the discriminator on mixed real and GAN-generated flowers, which requires a data and inference pipeline beyond notebook training.
 \item \textbf{Engineering and evaluation:} PyTorch Lightning training with manual optimization, adaptive $D$/$G$ scheduling, a Colab reproducible FID/KID/IS study on held-out test images, and reporting of long-run production quality (FID $50.3$ after $\approx 4$ GPU-hours) versus short ablations.
 \item \textbf{Empirical narrative:} documented mode collapse and stabilizers (label smoothing, asymmetric learning rates, batch normalization, selective updates) tied to both qualitative figures and quantitative tables.
 \end{enumerate}

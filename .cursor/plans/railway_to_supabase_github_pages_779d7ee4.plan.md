@@ -123,7 +123,7 @@ Update [frontend/vite.config.ts](frontend/vite.config.ts) for GitHub Pages:
 base: process.env.GITHUB_ACTIONS ? '/NeuralNector/' : '/',
 ```
 
-Or use `/` if deploying with custom domain (e.g., neuralnector.com).
+Or use `/` if deploying with custom domain (e.g., neuralnector.issacroy.com).
 
 ### 2.3 Environment Variables
 
@@ -173,7 +173,7 @@ jobs:
 Configure Supabase Edge Functions to allow:
 
 - `https://<username>.github.io`
-- `https://neuralnector.com` (if using custom domain)
+- `https://neuralnector.issacroy.com` (if using custom domain)
 
 ---
 
@@ -214,7 +214,7 @@ Configure Supabase Edge Functions to allow:
 
 ## Considerations
 
-1. **Custom domain**: If using neuralnector.com, configure GitHub Pages custom domain and set `base: '/'` in Vite.
+1. **Custom domain**: If using neuralnector.issacroy.com, configure GitHub Pages custom domain and set `base: '/'` in Vite.
 2. **Images bucket**: Ensure `Images` bucket has `real/` and `fake/` folders with .jpg/.jpeg/.png files. Storage free tier: 1GB.
 3. **Edge Function cold starts**: First request may be slower; acceptable for a game.
 4. **Local development**: Use `supabase start` and `supabase functions serve` for local Edge Functions.

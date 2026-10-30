@@ -25,7 +25,7 @@ const Samples = () => {
           At this point, it becomes a challenge for even humans to tell the difference between real and fake flowers (for 64x64 images). That's where this game comes in. You are now the discriminator. Can <span className="font-bold font-regitha">you</span> tell the difference?
         </p>
         <a
-          href="https://www.neuralnector.com/report.pdf"
+          href="https://neuralnector.issacroy.com/report.pdf"
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-outline btn-lg md:w-36"

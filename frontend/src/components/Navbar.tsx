@@ -35,7 +35,7 @@ const Navbar = () => {
           Learn More
         </a>
         <a
-          href="https://www.neuralnector.com/report.pdf"
+          href="https://neuralnector.issacroy.com/report.pdf"
           target="_blank"
           rel="noopener noreferrer"
           title="Documentation"
