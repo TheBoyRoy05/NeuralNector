@@ -23,6 +23,10 @@
 
 % Use the following line for the initial blind version submitted for review:
 \usepackage[accepted]{styles/icml2023}
+% Independent report, not an ICML paper: drop the template's proceedings notice.
+\makeatletter
+\renewcommand{\ICML@appearing}{}
+\makeatother
 
 % If accepted, instead use the following line for the camera-ready submission:
 % \usepackage[accepted]{icml2023}
@@ -342,19 +346,6 @@ We implemented DCGAN-style adversarial training for MNIST and Oxford Flowers~102
 The deployed game uses the \emph{asymmetric} baseline in \cref{tab:hparams}, trained $3000$ epochs ($\approx 4$ GPU-hours on an NVIDIA A100-40GB, \texttt{GAN\_pytorch.ipynb}). With the same $N=2048$ FID protocol as \cref{tab:flowers-fid} (generated vs.\ held-out test reals), that checkpoint reaches FID $50.3$, far below the $150$-epoch runs (best: $\approx 211$ for \texttt{FL4\_symmetric\_lr}), so most perceptual gain comes from long optimization. \cref{fig:final-flowers-grid} shows typical samples. We still prefer this recipe over the short-run winner because it was validated at long horizon and reflects the original goal of slowing $D$ early. The generator powers \underline{\href{https://neuralnector.issacroy.com}{NeuralNector}}, where human players discriminate real from synthetic images ranked in part by discriminator scores.
 
 Future work could add multi-seed FID confidence intervals, sweep learning rates and thresholds more densely, and explore alternative objectives or regularizers while preserving the game's latency and data-pipeline constraints.
-
-\section{Bonus}
-\label{sec:bonus}
-
-This project goes beyond training a standard benchmark in isolation in three ways: 
-
-\begin{enumerate}
-\item \textbf{Application:} a deployed web game (\href{https://neuralnector.issacroy.com}{NeuralNector}) where humans act as the discriminator on mixed real and GAN-generated flowers, which requires a data and inference pipeline beyond notebook training.
-\item \textbf{Engineering and evaluation:} PyTorch Lightning training with manual optimization, adaptive $D$/$G$ scheduling, a Colab reproducible FID/KID/IS study on held-out test images, and reporting of long-run production quality (FID $50.3$ after $\approx 4$ GPU-hours) versus short ablations.
-\item \textbf{Empirical narrative:} documented mode collapse and stabilizers (label smoothing, asymmetric learning rates, batch normalization, selective updates) tied to both qualitative figures and quantitative tables.
-\end{enumerate}
-
-These elements reflect substantial integration effort and a readable account of practical GAN training rather than a single off-the-shelf run.
 
 \bibliographystyle{icml2023}
 \bibliography{main.bib}
